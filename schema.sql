@@ -74,10 +74,25 @@ CREATE TABLE IF NOT EXISTS stock (
     min_threshold INTEGER DEFAULT 10
 );
 
--- 7. Disable Row Level Security (RLS) on all tables to allow connection read/write
+-- 7. Create Stock History Table (Historique des approvisionnements)
+CREATE TABLE IF NOT EXISTS stock_history (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL,
+    operator TEXT NOT NULL,
+    product_type TEXT NOT NULL,
+    product_name TEXT NOT NULL,
+    quantity INTEGER NOT NULL,
+    invoice_num TEXT,
+    discount NUMERIC DEFAULT 0,
+    notes TEXT,
+    vendor TEXT
+);
+
+-- 8. Disable Row Level Security (RLS) on all tables to allow connection read/write
 ALTER TABLE clients DISABLE ROW LEVEL SECURITY;
 ALTER TABLE sales DISABLE ROW LEVEL SECURITY;
 ALTER TABLE credits DISABLE ROW LEVEL SECURITY;
 ALTER TABLE credit_payments DISABLE ROW LEVEL SECURITY;
 ALTER TABLE expenses DISABLE ROW LEVEL SECURITY;
 ALTER TABLE stock DISABLE ROW LEVEL SECURITY;
+ALTER TABLE stock_history DISABLE ROW LEVEL SECURITY;

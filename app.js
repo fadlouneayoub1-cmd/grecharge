@@ -11,6 +11,7 @@ let state = {
     credits: [],
     expenses: [],
     stock: [],
+    stock_history: [],
     user: null,
     activeStockOperator: 'Maroc Telecom'
 };
@@ -322,6 +323,23 @@ async function loadDatabaseData() {
         state.expenses = expensesRes.data || [];
         state.stock = stockRes.data || [];
 
+        // Fetch stock history separately to avoid crashing if table doesn't exist
+        state.stock_history = [];
+        try {
+            const historyRes = await supabase.from('stock_history').select('*').order('created_at', { ascending: false });
+            if (historyRes.error) {
+                if (historyRes.error.code === '42P01') {
+                    console.warn("stock_history table relation does not exist.");
+                } else {
+                    throw historyRes.error;
+                }
+            } else {
+                state.stock_history = historyRes.data || [];
+            }
+        } catch (err) {
+            console.error("Failed to load stock history:", err);
+        }
+
         // Auto-seed missing stock items for operators
         state.stock = await ensureDefaultStock(state.stock);
 
@@ -332,6 +350,7 @@ async function loadDatabaseData() {
         renderCreditsTable();
         renderExpensesTable();
         renderStockTable();
+        renderStockHistoryTable();
     } catch (err) {
         console.error('Error fetching database:', err);
         const isAr = document.documentElement.lang === 'ar';
@@ -2032,12 +2051,26 @@ async function triggerQuickRestock(id) {
             const addedQty = parseInt(result.value);
             const newQty = item.quantity + addedQty;
 
-            const { error } = await supabase.from('stock').update({ quantity: newQty }).eq('id', id);
-            if (error) {
-                Swal.fire(isAr ? 'خطأ' : 'Erreur', error.message, 'error');
-            } else {
+            try {
+                const { error: stockErr } = await supabase.from('stock').update({ quantity: newQty }).eq('id', id);
+                if (stockErr) throw stockErr;
+
+                // Log in stock_history
+                const historyRow = {
+                    operator: item.operator,
+                    product_type: item.product_type,
+                    product_name: item.product_name,
+                    quantity: addedQty,
+                    vendor: '-- Central Admin Stock --',
+                    notes: 'Quick Restock / توريد سريع'
+                };
+                await supabase.from('stock_history').insert([historyRow]);
+
                 Swal.fire({ icon: 'success', title: isAr ? 'تم تحديث المخزون' : 'Stock mis à jour', timer: 1500, showConfirmButton: false });
                 loadDatabaseData();
+            } catch (err) {
+                console.error(err);
+                Swal.fire(isAr ? 'خطأ' : 'Erreur', err.message, 'error');
             }
         }
     });
@@ -2189,12 +2222,26 @@ function triggerAddStockModal() {
             Swal.fire({ title: isAr ? 'جاري تحديث المخزون...' : 'Mise à jour du stock...', didOpen: () => Swal.showLoading(), allowOutsideClick: false });
             
             try {
-                const { updates, invoiceNum } = result.value;
+                const { updates, invoiceNum, discount, notes, vendor, operator } = result.value;
                 
                 // Save updates in Supabase
                 for (let u of updates) {
                     const { error } = await supabase.from('stock').update({ quantity: u.newQty }).eq('id', u.itemId);
                     if (error) throw error;
+
+                    // Log in stock_history
+                    const itemData = state.stock.find(s => s.id === u.itemId);
+                    const historyRow = {
+                        operator: operator,
+                        product_type: itemData ? itemData.product_type : 'Recharge',
+                        product_name: u.itemName,
+                        quantity: u.qtyAdded,
+                        invoice_num: invoiceNum,
+                        discount: discount,
+                        notes: notes,
+                        vendor: vendor
+                    };
+                    await supabase.from('stock_history').insert([historyRow]);
                 }
 
                 Swal.fire({
@@ -2429,13 +2476,28 @@ CREATE TABLE IF NOT EXISTS stock (
     min_threshold INTEGER DEFAULT 10
 );
 
--- 7. Disable Row Level Security (RLS) on all tables to allow connection read/write
+-- 7. Create Stock History Table
+CREATE TABLE IF NOT EXISTS stock_history (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL,
+    operator TEXT NOT NULL,
+    product_type TEXT NOT NULL,
+    product_name TEXT NOT NULL,
+    quantity INTEGER NOT NULL,
+    invoice_num TEXT,
+    discount NUMERIC DEFAULT 0,
+    notes TEXT,
+    vendor TEXT
+);
+
+-- 8. Disable Row Level Security (RLS) on all tables to allow connection read/write
 ALTER TABLE clients DISABLE ROW LEVEL SECURITY;
 ALTER TABLE sales DISABLE ROW LEVEL SECURITY;
 ALTER TABLE credits DISABLE ROW LEVEL SECURITY;
 ALTER TABLE credit_payments DISABLE ROW LEVEL SECURITY;
 ALTER TABLE expenses DISABLE ROW LEVEL SECURITY;
-ALTER TABLE stock DISABLE ROW LEVEL SECURITY;`;
+ALTER TABLE stock DISABLE ROW LEVEL SECURITY;
+ALTER TABLE stock_history DISABLE ROW LEVEL SECURITY;`;
 
     const isAr = document.documentElement.lang === 'ar';
     Swal.fire({
@@ -2942,7 +3004,13 @@ const TRANSLATIONS = {
         amount_dh: "Montant (DH)",
         comm_recharge_lbl: "Recharge Comm. (%)",
         comm_sim_lbl: "SIM Comm. (DH)",
-        save_commissions: "Enregistrer les commissions"
+        save_commissions: "Enregistrer les commissions",
+        stock_history_title: "Historique des Approvisionnements",
+        stock_history_subtitle: "Journal des recharges et cartes SIM achetées ou saisies",
+        qty_added: "Quantité Ajoutée",
+        invoice_ref: "N° Facture",
+        invoice_discount: "Remise (%)",
+        vendor: "Fournisseur"
     },
     ar: {
         app_title: "مدير الشحن والشرائح",
@@ -3030,7 +3098,13 @@ const TRANSLATIONS = {
         amount_dh: "المبلغ (د.م.)",
         comm_recharge_lbl: "عمولة التعبئة (%)",
         comm_sim_lbl: "عمولة شريحة SIM (د.م.)",
-        save_commissions: "حفظ نسب العمولات"
+        save_commissions: "حفظ نسب العمولات",
+        stock_history_title: "سجل التوريدات والمشتريات",
+        stock_history_subtitle: "دفتر التوريدات لجميع الشحنات المضافة للمخزون",
+        qty_added: "الكمية المضافة",
+        invoice_ref: "رقم الفاتورة",
+        invoice_discount: "التخفيض (%)",
+        vendor: "المورد / البائع"
     }
 };
 
@@ -3109,8 +3183,128 @@ function changeLanguage(lang) {
             renderCreditsTable();
         } else if (document.getElementById('view-stock') && !document.getElementById('view-stock').classList.contains('hidden')) {
             renderStockTable();
+            renderStockHistoryTable();
         }
     }
     
     localStorage.setItem('recharge_sim_lang', lang);
+}
+
+// ==========================================
+// 11. STOCK HISTORY LOGIC (NEW FEATURE)
+// ==========================================
+
+function renderStockHistoryTable() {
+    const tbody = document.getElementById('stock-history-tbody');
+    if (!tbody) return;
+    tbody.innerHTML = '';
+    
+    const isAr = document.documentElement.lang === 'ar';
+
+    if (!state.stock_history || state.stock_history.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="10" style="text-align:center; color:var(--text-light); padding:1.5rem;">${isAr ? 'لا يوجد سجل للتوريدات بعد.' : 'Aucun historique d\'approvisionnement enregistré.'}</td></tr>`;
+        return;
+    }
+
+    state.stock_history.forEach(h => {
+        const tr = document.createElement('tr');
+        tr.style.borderBottom = '1px solid var(--border)';
+        
+        const operatorClass = h.operator === 'Maroc Telecom' ? 'badge-operator-mt' : h.operator === 'Orange' ? 'badge-operator-orange' : 'badge-operator-inwi';
+        const dateFormatted = formatDate(h.created_at);
+
+        tr.innerHTML = `
+            <td style="white-space: nowrap;">${dateFormatted}</td>
+            <td><span class="badge ${operatorClass}">${h.operator}</span></td>
+            <td>${h.product_type}</td>
+            <td class="bold">${escapeHTML(h.product_name)}</td>
+            <td class="text-right bold" style="color: var(--success);">+${h.quantity}</td>
+            <td>${escapeHTML(h.invoice_num || '-')}</td>
+            <td class="text-right">${h.discount ? h.discount + '%' : '-'}</td>
+            <td>${escapeHTML(h.vendor || '-')}</td>
+            <td><span style="font-size:0.75rem; color:var(--text-light); max-width: 150px; display: inline-block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" title="${escapeHTML(h.notes || '')}">${escapeHTML(h.notes || '-')}</span></td>
+            <td style="text-align: center;">
+                <button class="icon-btn btn-delete-stock-history" data-id="${h.id}" style="color:var(--danger); border-color:var(--danger); padding:2px; height:24px; width:24px; min-width:24px; display:inline-flex; align-items:center; justify-content:center;">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" style="width:12px;height:12px;"><path stroke-linecap="round" stroke-linejoin="round" d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0" /></svg>
+                </button>
+            </td>
+        `;
+        tbody.appendChild(tr);
+    });
+
+    // Bind delete buttons
+    document.querySelectorAll('.btn-delete-stock-history').forEach(btn => {
+        btn.addEventListener('click', () => {
+            deleteStockHistoryHandler(btn.getAttribute('data-id'));
+        });
+    });
+}
+
+async function deleteStockHistoryHandler(id) {
+    const entry = state.stock_history.find(h => h.id === id);
+    if (!entry) return;
+
+    const isAr = document.documentElement.lang === 'ar';
+    
+    // Find corresponding stock item
+    const stockItem = state.stock.find(s => 
+        s.operator === entry.operator && 
+        s.product_type === entry.product_type && 
+        s.product_name === entry.product_name
+    );
+
+    let stockQtyAfterSub = 0;
+    if (stockItem) {
+        stockQtyAfterSub = stockItem.quantity - entry.quantity;
+    }
+
+    const warningHtml = isAr 
+        ? `<div style="text-align: right; direction: rtl;">
+            سيتم إلغاء هذا التوريد وحذف السجل.<br>
+            سيتم طرح <b>${entry.quantity}</b> من مخزون <b>${escapeHTML(entry.product_name)}</b>.<br>
+            ${stockQtyAfterSub < 0 ? `<span style="color:var(--danger); font-weight:700;">تحذير: سيصبح المخزون سالباً (${stockQtyAfterSub})!</span>` : ''}
+           </div>`
+        : `<div>
+            Cette action va annuler cet approvisionnement.<br>
+            La quantité de <b>${entry.quantity}</b> sera soustraite du stock de <b>${escapeHTML(entry.product_name)}</b>.<br>
+            ${stockQtyAfterSub < 0 ? `<span style="color:var(--danger); font-weight:700;">Attention : le stock deviendra négatif (${stockQtyAfterSub}) !</span>` : ''}
+           </div>`;
+
+    Swal.fire({
+        title: isAr ? 'إلغاء التوريد؟' : 'Annuler l\'approvisionnement ?',
+        html: warningHtml,
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#EF4444',
+        cancelButtonColor: '#64748B',
+        confirmButtonText: isAr ? 'نعم، إلغاء' : 'Oui, annuler',
+        cancelButtonText: isAr ? 'رجوع' : 'Retour',
+        customClass: { popup: 'swal2-popup-custom' }
+    }).then(async (result) => {
+        if (result.isConfirmed) {
+            Swal.fire({
+                title: isAr ? 'جاري إلغاء التوريد...' : 'Annulation de l\'approvisionnement...',
+                didOpen: () => Swal.showLoading(),
+                allowOutsideClick: false
+            });
+
+            try {
+                // Update stock if item exists
+                if (stockItem) {
+                    const { error: stockErr } = await supabase.from('stock').update({ quantity: stockQtyAfterSub }).eq('id', stockItem.id);
+                    if (stockErr) throw stockErr;
+                }
+
+                // Delete from stock_history
+                const { error: historyErr } = await supabase.from('stock_history').delete().eq('id', id);
+                if (historyErr) throw historyErr;
+
+                Swal.fire({ icon: 'success', title: isAr ? 'تم إلغاء التوريد بنجاح' : 'Approvisionnement annulé', timer: 1500, showConfirmButton: false });
+                loadDatabaseData();
+            } catch (err) {
+                console.error(err);
+                Swal.fire(isAr ? 'خطأ' : 'Erreur', err.message, 'error');
+            }
+        }
+    });
 }

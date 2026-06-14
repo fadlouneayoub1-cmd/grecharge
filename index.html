@@ -596,6 +596,36 @@
                             </table>
                         </div>
                     </div>
+
+                    <!-- NEW: Stock History Section -->
+                    <div style="margin-top: 2.5rem; margin-bottom: 1.25rem;">
+                        <h2 style="font-size: 1.25rem; font-weight: 700; color: var(--text-main); margin-bottom: 0.25rem;" data-i18n="stock_history_title">Historique des Approvisionnements</h2>
+                        <p style="font-size: 0.85rem; color: var(--text-light); margin-bottom: 1rem;" data-i18n="stock_history_subtitle">Journal des recharges et cartes SIM achetées ou saisies</p>
+                    </div>
+
+                    <div class="table-card">
+                        <div class="table-wrapper">
+                            <table class="data-table">
+                                <thead>
+                                    <tr>
+                                        <th data-i18n="date">Date</th>
+                                        <th data-i18n="operator">Opérateur</th>
+                                        <th data-i18n="product_type">Type</th>
+                                        <th data-i18n="designation">Désignation</th>
+                                        <th class="text-right" data-i18n="qty_added">Quantité Ajoutée</th>
+                                        <th data-i18n="invoice_ref">N° Facture</th>
+                                        <th class="text-right" data-i18n="invoice_discount">Remise (%)</th>
+                                        <th data-i18n="vendor">Fournisseur</th>
+                                        <th data-i18n="notes">Notes</th>
+                                        <th data-i18n="actions" style="width: 80px; text-align: center;">Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="stock-history-tbody">
+                                    <!-- Populated by JS -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
                 </section>
                 
                 <!-- ================= 7. CONFIGURATION VIEW ================= -->
