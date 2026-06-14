@@ -2083,7 +2083,8 @@ async function triggerQuickRestock(id) {
                     vendor: '-- Central Admin Stock --',
                     notes: 'Quick Restock / توريد سريع'
                 };
-                await supabase.from('stock_history').insert([historyRow]);
+                const { error: histErr } = await supabase.from('stock_history').insert([historyRow]);
+                if (histErr) throw histErr;
 
                 Swal.fire({ icon: 'success', title: isAr ? 'تم تحديث المخزون' : 'Stock mis à jour', timer: 1500, showConfirmButton: false });
                 loadDatabaseData();
@@ -2260,7 +2261,8 @@ function triggerAddStockModal() {
                         notes: notes,
                         vendor: vendor
                     };
-                    await supabase.from('stock_history').insert([historyRow]);
+                    const { error: histErr } = await supabase.from('stock_history').insert([historyRow]);
+                    if (histErr) throw histErr;
                 }
 
                 Swal.fire({
