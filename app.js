@@ -1423,10 +1423,10 @@ function triggerNewSaleModal(preselectedClientId = null) {
                     searchInput.value = `${c.name} (${c.phone || ''})`;
                     clientHiddenInput.value = c.id;
                 }
-            } else if (state.clients.length > 0) {
-                const c = state.clients[0];
-                searchInput.value = `${c.name} (${c.phone || ''})`;
-                clientHiddenInput.value = c.id;
+            } else {
+                // Keep input empty by default
+                searchInput.value = '';
+                clientHiddenInput.value = '';
             }
 
             searchInput.addEventListener('focus', () => {
@@ -1446,10 +1446,11 @@ function triggerNewSaleModal(preselectedClientId = null) {
                     const currentClient = state.clients.find(c => c.id === currentId);
                     if (currentClient) {
                         searchInput.value = `${currentClient.name} (${currentClient.phone || ''})`;
-                    } else if (state.clients.length > 0) {
-                        const defaultClient = state.clients[0];
-                        searchInput.value = `${defaultClient.name} (${defaultClient.phone || ''})`;
-                        clientHiddenInput.value = defaultClient.id;
+                    } else if (searchInput.value.trim() === '') {
+                        clientHiddenInput.value = '';
+                    } else {
+                        searchInput.value = '';
+                        clientHiddenInput.value = '';
                     }
                 }, 200);
             });
@@ -1617,6 +1618,10 @@ function triggerNewSaleModal(preselectedClientId = null) {
             const payment_status = document.getElementById('modal-sale-payment').value;
             const discountPct = parseFloat(document.getElementById('modal-sale-discount-pct').value || 0);
 
+            if (!client_id) {
+                Swal.showValidationMessage(isAr ? 'يرجى اختيار زبون صحيح' : 'Veuillez sélectionner un client valide');
+                return false;
+            }
             if (cart.length === 0) {
                 Swal.showValidationMessage(isAr ? 'يرجى إضافة منتج واحد على الأقل إلى السلة' : 'Veuillez ajouter au moins un produit au panier');
                 return false;
