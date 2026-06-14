@@ -2783,9 +2783,15 @@ function triggerQRScannerModal() {
         html: `
             <div style="text-align: center; font-family: 'Outfit', sans-serif;">
                 <div id="qr-reader" style="width: 100%; max-width: 350px; margin: 0 auto; border: 1px solid var(--border); border-radius: var(--radius-lg); background: #0f172a; overflow: hidden; min-height: 250px; display: flex; align-items: center; justify-content: center; color: white; position: relative; box-shadow: var(--shadow-sm);">
-                    <span id="qr-reader-placeholder" style="font-size: 0.85rem; color: #94a3b8; padding: 20px;">
+                    <span id="qr-reader-placeholder" style="font-size: 0.85rem; color: #94a3b8; padding: 20px; z-index: 5;">
                         ${isAr ? 'جاري تشغيل الكاميرا...' : 'Activation de la caméra...'}
                     </span>
+                    <!-- Beautiful CSS overlay scanning frame -->
+                    <div class="qr-scanner-overlay">
+                        <div class="qr-scanner-box">
+                            <div class="qr-scanner-laser"></div>
+                        </div>
+                    </div>
                 </div>
                 <div style="margin-top: 15px; display: flex; gap: 8px; justify-content: center;">
                     <button id="btn-toggle-scanner-source" class="btn btn-secondary btn-sm" style="font-size: 0.8rem; padding: 6px 12px; display: inline-flex; align-items: center; gap: 4px;">
@@ -2840,7 +2846,18 @@ function triggerQRScannerModal() {
                     }
                 };
                 
-                const config = { fps: 10, qrbox: { width: 220, height: 220 } };
+                const config = { 
+                    fps: 15, 
+                    qrbox: function(width, height) {
+                        const minEdge = Math.min(width, height);
+                        const qrboxSize = Math.floor(minEdge * 0.7);
+                        return {
+                            width: qrboxSize,
+                            height: qrboxSize
+                        };
+                    },
+                    focusMode: "continuous"
+                };
                 
                 html5QrCode.start(
                     { facingMode: "environment" }, 

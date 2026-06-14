@@ -981,3 +981,44 @@ body.rtl .charts-grid {
     direction: ltr !important; /* Keep canvas elements LTR to avoid rendering bugs */
 }
 
+/* QR Scanner Overlay and Laser Line Animation */
+.qr-scanner-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    pointer-events: none;
+    z-index: 10;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.qr-scanner-box {
+    width: 220px;
+    height: 220px;
+    border: 3px solid #8b5cf6;
+    border-radius: 12px;
+    box-shadow: 0 0 0 9999px rgba(15, 23, 42, 0.65);
+    position: relative;
+    box-sizing: border-box;
+}
+.qr-scanner-laser {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: #8b5cf6;
+    box-shadow: 0 0 10px #8b5cf6;
+    animation: qrScanLaser 2.5s ease-in-out infinite;
+}
+@keyframes qrScanLaser {
+    0%, 100% {
+        top: 0%;
+    }
+    50% {
+        top: 100%;
+    }
+}
+
