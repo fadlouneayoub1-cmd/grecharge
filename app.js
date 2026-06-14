@@ -1357,17 +1357,21 @@ function triggerNewSaleModal(preselectedClientId = null) {
                         </div>
                     </div>
                     
-                    <div style="display:grid; grid-template-columns: 1fr 1fr 1fr; gap:0.5rem; margin-bottom:0.75rem; align-items:flex-end;">
+                    <div style="display:grid; grid-template-columns: 1fr 1.2fr 1fr 1.2fr; gap:0.5rem; margin-bottom:0.75rem; align-items:flex-end;">
                         <div class="form-group" style="margin-bottom:0;">
                             <label style="font-size:0.75rem;">${isAr ? 'الكمية' : 'Quantité'}</label>
                             <input type="number" id="modal-sale-qty" class="form-input" value="1" min="1" style="padding:0.4rem 0.6rem; font-size:0.8rem;">
                         </div>
                         <div class="form-group" style="margin-bottom:0;">
-                            <label style="font-size:0.75rem;">${isAr ? 'سعر الوحدة (درهم) *' : 'Prix unitaire (DH) *'}</label>
+                            <label style="font-size:0.75rem;">${isAr ? 'سعر الوحدة (د.م.) *' : 'Prix unitaire (DH) *'}</label>
                             <input type="number" id="modal-sale-price" class="form-input" value="50" min="0" step="any" style="padding:0.4rem 0.6rem; font-size:0.8rem;">
                         </div>
-                        <button type="button" class="btn btn-primary btn-sm" id="btn-add-to-cart" style="height:32px; padding:0; background-color:var(--success);">
-                            ${isAr ? '+ إضافة للسلة' : '+ Ajouter'}
+                        <div class="form-group" style="margin-bottom:0;">
+                            <label style="font-size:0.75rem;">${isAr ? 'التخفيض (%)' : 'Remise (%)'}</label>
+                            <input type="number" id="modal-sale-item-discount" class="form-input" value="0" min="0" max="100" step="any" placeholder="0" style="padding:0.4rem 0.6rem; font-size:0.8rem;">
+                        </div>
+                        <button type="button" class="btn btn-primary btn-sm" id="btn-add-to-cart" style="height:32px; padding:0; background-color:var(--success); font-size:0.8rem; font-weight:600;">
+                            ${isAr ? '+ إضافة' : '+ Ajouter'}
                         </button>
                     </div>
                 </div>
@@ -1382,25 +1386,22 @@ function triggerNewSaleModal(preselectedClientId = null) {
                                 <th style="padding:0.35rem 0.5rem; text-align:${isAr ? 'right' : 'left'};">${isAr ? 'الشركة' : 'Opérateur'}</th>
                                 <th style="padding:0.35rem 0.5rem; text-align:${isAr ? 'left' : 'right'};">${isAr ? 'الكمية' : 'Qté'}</th>
                                 <th style="padding:0.35rem 0.5rem; text-align:${isAr ? 'left' : 'right'};">${isAr ? 'السعر' : 'P.U.'}</th>
+                                <th style="padding:0.35rem 0.5rem; text-align:${isAr ? 'left' : 'right'};">${isAr ? 'تخفيض (%)' : 'Remise (%)'}</th>
                                 <th style="padding:0.35rem 0.5rem; text-align:${isAr ? 'left' : 'right'};">${isAr ? 'المجموع' : 'Total'}</th>
                                 <th style="padding:0.35rem 0.5rem; text-align:center; width:30px;"></th>
                             </tr>
                         </thead>
                         <tbody id="modal-cart-tbody">
-                            <tr><td colspan="6" style="text-align:center; color:var(--text-light); padding:1rem;">${isAr ? 'السلة فارغة.' : 'Panier vide.'}</td></tr>
+                            <tr><td colspan="7" style="text-align:center; color:var(--text-light); padding:1rem;">${isAr ? 'السلة فارغة.' : 'Panier vide.'}</td></tr>
                         </tbody>
                     </table>
                 </div>
                 
-                <!-- 4. Remise & Net à Payer (No Total Brut as requested) -->
-                <div style="display:grid; grid-template-columns: 1fr 1fr; gap:0.75rem; align-items:center; border-top:1px dashed var(--border); padding-top:1rem;">
+                <!-- 4. Net à Payer -->
+                <div style="display:grid; grid-template-columns: 1fr; gap:0.75rem; align-items:center; border-top:1px dashed var(--border); padding-top:1rem;">
                     <div class="form-group" style="margin-bottom:0;">
-                        <label>${isAr ? 'التخفيض (%)' : 'Remise (%)'}</label>
-                        <input type="number" id="modal-sale-discount-pct" class="form-input" value="0" min="0" max="100" step="any" placeholder="0">
-                    </div>
-                    <div class="form-group" style="margin-bottom:0;">
-                        <label>${isAr ? 'الصافي للأداء (د.م.)' : 'Net à Payer (DH)'}</label>
-                        <input type="text" id="modal-sale-net" class="form-input" value="0.00" disabled style="font-weight:800; color:var(--primary-hover); font-size:1.15rem; background-color:var(--primary-light);">
+                        <label style="font-weight:600; font-size:0.8rem;">${isAr ? 'الصافي الإجمالي للأداء (د.م.)' : 'Net à Payer Total (DH)'}</label>
+                        <input type="text" id="modal-sale-net" class="form-input" value="0.00 DH" disabled style="font-weight:800; color:var(--primary-hover); font-size:1.15rem; background-color:var(--primary-light); text-align:center;">
                     </div>
                 </div>
             </div>
@@ -1499,7 +1500,7 @@ function triggerNewSaleModal(preselectedClientId = null) {
             const priceIn = document.getElementById('modal-sale-price');
             const typeIn = document.getElementById('modal-sale-type');
             const nameIn = document.getElementById('modal-sale-artname');
-            const discountPctIn = document.getElementById('modal-sale-discount-pct');
+            const itemDiscountIn = document.getElementById('modal-sale-item-discount');
             const addToCartBtn = document.getElementById('btn-add-to-cart');
 
             const updateUnitPriceFromSelectedArticle = () => {
@@ -1561,8 +1562,6 @@ function triggerNewSaleModal(preselectedClientId = null) {
                 populateSaleArticleOptions();
             });
 
-            discountPctIn.addEventListener('input', recalculateCartTotal);
-
             // Add product to cart handler
             addToCartBtn.addEventListener('click', () => {
                 const operator = document.querySelector('.operator-pill.selected').getAttribute('data-operator');
@@ -1570,6 +1569,7 @@ function triggerNewSaleModal(preselectedClientId = null) {
                 const product_name = nameIn.value.trim();
                 const quantity = parseInt(qtyIn.value || 0);
                 const unit_price = parseFloat(priceIn.value || 0);
+                const discount_pct = parseFloat(itemDiscountIn.value || 0);
 
                 if (!product_name) {
                     Swal.showValidationMessage(isAr ? "اسم المادة مطلوب" : "Désignation de l'article requise");
@@ -1590,13 +1590,19 @@ function triggerNewSaleModal(preselectedClientId = null) {
                 }
 
                 // Add item
+                const total_brut = quantity * unit_price;
+                const discount_amount = total_brut * (discount_pct / 100);
+                const total_net = total_brut - discount_amount;
+
                 cart.push({
                     operator,
                     product_type,
                     product_name,
                     quantity,
                     unit_price,
-                    total: quantity * unit_price
+                    discount_pct,
+                    discount_amount,
+                    total: total_net
                 });
 
                 renderCartRows();
@@ -1604,6 +1610,7 @@ function triggerNewSaleModal(preselectedClientId = null) {
 
                 // Reset item entry fields
                 qtyIn.value = 1;
+                itemDiscountIn.value = 0;
                 populateSaleArticleOptions();
             });
 
@@ -1612,7 +1619,7 @@ function triggerNewSaleModal(preselectedClientId = null) {
                 tbody.innerHTML = '';
                 
                 if (cart.length === 0) {
-                    tbody.innerHTML = `<tr><td colspan="6" style="text-align:center; color:var(--text-light); padding:1rem;">${isAr ? 'السلة فارغة.' : 'Panier vide.'}</td></tr>`;
+                    tbody.innerHTML = `<tr><td colspan="7" style="text-align:center; color:var(--text-light); padding:1rem;">${isAr ? 'السلة فارغة.' : 'Panier vide.'}</td></tr>`;
                     return;
                 }
 
@@ -1624,6 +1631,7 @@ function triggerNewSaleModal(preselectedClientId = null) {
                         <td style="padding:0.35rem 0.5rem; text-align:${isAr ? 'right' : 'left'};">${escapeHTML(item.operator)}</td>
                         <td style="padding:0.35rem 0.5rem; text-align:${isAr ? 'left' : 'right'};">${item.quantity}</td>
                         <td style="padding:0.35rem 0.5rem; text-align:${isAr ? 'left' : 'right'};">${item.unit_price.toFixed(2)}</td>
+                        <td style="padding:0.35rem 0.5rem; text-align:${isAr ? 'left' : 'right'};">${item.discount_pct.toFixed(1)}%</td>
                         <td style="padding:0.35rem 0.5rem; text-align:${isAr ? 'left' : 'right'}; font-weight:600;">${item.total.toFixed(2)}</td>
                         <td style="padding:0.35rem 0.5rem; text-align:center;">
                             <button type="button" class="btn-delete-cart-item" data-index="${index}" style="background:none; border:none; color:var(--danger); cursor:pointer; font-size:1.1rem; padding:0;">×</button>
@@ -1644,9 +1652,7 @@ function triggerNewSaleModal(preselectedClientId = null) {
             }
 
             function recalculateCartTotal() {
-                const totalGross = cart.reduce((sum, item) => sum + item.total, 0);
-                const discountPct = parseFloat(document.getElementById('modal-sale-discount-pct').value || 0);
-                const totalNet = Math.max(0, totalGross * (1 - discountPct / 100));
+                const totalNet = cart.reduce((sum, item) => sum + item.total, 0);
                 document.getElementById('modal-sale-net').value = totalNet.toFixed(2) + ' DH';
             }
 
@@ -1656,7 +1662,6 @@ function triggerNewSaleModal(preselectedClientId = null) {
         preConfirm: () => {
             const client_id = document.getElementById('modal-sale-client').value;
             const payment_status = document.getElementById('modal-sale-payment').value;
-            const discountPct = parseFloat(document.getElementById('modal-sale-discount-pct').value || 0);
 
             if (!client_id) {
                 Swal.showValidationMessage(isAr ? 'يرجى اختيار زبون صحيح' : 'Veuillez sélectionner un client valide');
@@ -1667,7 +1672,7 @@ function triggerNewSaleModal(preselectedClientId = null) {
                 return false;
             }
 
-            return { client_id, payment_status, discountPct, cart };
+            return { client_id, payment_status, cart };
         },
         customClass: { popup: 'swal2-popup-custom' }
     }).then(async (result) => {
@@ -1675,7 +1680,7 @@ function triggerNewSaleModal(preselectedClientId = null) {
             Swal.fire({ title: isAr ? 'جاري تسجيل البيع...' : 'Enregistrement de la vente...', didOpen: () => Swal.showLoading(), allowOutsideClick: false });
             
             try {
-                const { client_id, payment_status, discountPct, cart: itemsToSell } = result.value;
+                const { client_id, payment_status, cart: itemsToSell } = result.value;
                 const invoiceRef = `Facture REF-${Date.now()}`;
                 
                 let totalInvoiceNet = 0;
@@ -1684,8 +1689,8 @@ function triggerNewSaleModal(preselectedClientId = null) {
                 // Loop through items in cart to insert and update stock
                 for (let item of itemsToSell) {
                     const itemBrut = item.quantity * item.unit_price;
-                    const itemDiscount = itemBrut * (discountPct / 100);
-                    const itemNet = itemBrut - itemDiscount;
+                    const itemDiscount = item.discount_amount;
+                    const itemNet = item.total;
                     totalInvoiceNet += itemNet;
 
                     const saleRow = {
