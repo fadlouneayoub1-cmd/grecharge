@@ -1273,11 +1273,11 @@ function triggerNewSaleModal(preselectedClientId = null) {
             <div style="text-align:${isAr ? 'right' : 'left'}; direction: ${isAr ? 'rtl' : 'ltr'}; max-height:85vh; overflow-y:auto; padding-right:5px;">
                 <!-- 1. General Info -->
                 <div style="display:grid; grid-template-columns: 1fr 1fr; gap:0.75rem; margin-bottom:1rem;">
-                    <div class="form-group" style="margin-bottom:0;">
+                    <div class="form-group" style="margin-bottom:0; position: relative;">
                         <label>${isAr ? 'اختر الزبون *' : 'Sélectionner le Client *'}</label>
-                        <select id="modal-sale-client" class="form-select">
-                            ${clientOptions}
-                        </select>
+                        <input type="text" id="modal-sale-client-search" class="form-select" placeholder="${isAr ? 'ابحث بالاسم أو الرقم...' : 'Rechercher par nom ou numéro...'}" autocomplete="off" style="width:100%;" />
+                        <input type="hidden" id="modal-sale-client" value="" />
+                        <div id="modal-sale-client-dropdown" style="display: none; position: absolute; top: 100%; left: 0; right: 0; max-height: 200px; overflow-y: auto; background: white; border: 1px solid var(--border); border-radius: var(--radius-md); z-index: 1000; box-shadow: var(--shadow-md); margin-top: 4px;"></div>
                     </div>
                     <div class="form-group" style="margin-bottom:0;">
                         <label>${isAr ? 'حالة الدفع' : 'Statut de Paiement'}</label>
@@ -1370,6 +1370,90 @@ function triggerNewSaleModal(preselectedClientId = null) {
         cancelButtonText: isAr ? 'إلغاء' : 'Annuler',
         confirmButtonColor: '#EF4444',
         didOpen: () => {
+            // Custom Searchable Dropdown for Client
+            const searchInput = document.getElementById('modal-sale-client-search');
+            const clientHiddenInput = document.getElementById('modal-sale-client');
+            const dropdown = document.getElementById('modal-sale-client-dropdown');
+
+            const filterClients = (searchText) => {
+                const query = searchText.toLowerCase().trim();
+                const filtered = state.clients.filter(c => 
+                    (c.name || '').toLowerCase().includes(query) || 
+                    (c.phone || '').toLowerCase().includes(query) ||
+                    (c.dealer_number || '').toLowerCase().includes(query)
+                );
+                
+                dropdown.innerHTML = '';
+                if (filtered.length === 0) {
+                    dropdown.innerHTML = `<div style="padding: 8px 12px; color: var(--text-light); font-size: 0.85rem;">${isAr ? 'لا يوجد زبائن' : 'Aucun client trouvé'}</div>`;
+                } else {
+                    filtered.forEach(c => {
+                        const item = document.createElement('div');
+                        item.style.padding = '8px 12px';
+                        item.style.cursor = 'pointer';
+                        item.style.borderBottom = '1px solid #F1F5F9';
+                        item.style.fontSize = '0.85rem';
+                        item.style.textAlign = isAr ? 'right' : 'left';
+                        item.innerHTML = `
+                            <div style="font-weight: 600; color: var(--text-main);">${escapeHTML(c.name)}</div>
+                            <div style="font-size: 0.75rem; color: var(--text-light);">${escapeHTML(c.phone || (isAr ? 'بدون هاتف' : 'Pas de numéro'))} ${c.dealer_number ? ` | Dealer: ${escapeHTML(c.dealer_number)}` : ''}</div>
+                        `;
+                        
+                        item.addEventListener('mouseenter', () => {
+                            item.style.backgroundColor = '#F1F5F9';
+                        });
+                        item.addEventListener('mouseleave', () => {
+                            item.style.backgroundColor = 'transparent';
+                        });
+                        item.addEventListener('mousedown', (e) => {
+                            e.preventDefault();
+                            searchInput.value = `${c.name} (${c.phone || ''})`;
+                            clientHiddenInput.value = c.id;
+                            dropdown.style.display = 'none';
+                        });
+                        dropdown.appendChild(item);
+                    });
+                }
+            };
+
+            // Preselect if requested
+            if (preselectedClientId) {
+                const c = state.clients.find(c => c.id === preselectedClientId);
+                if (c) {
+                    searchInput.value = `${c.name} (${c.phone || ''})`;
+                    clientHiddenInput.value = c.id;
+                }
+            } else if (state.clients.length > 0) {
+                const c = state.clients[0];
+                searchInput.value = `${c.name} (${c.phone || ''})`;
+                clientHiddenInput.value = c.id;
+            }
+
+            searchInput.addEventListener('focus', () => {
+                filterClients(searchInput.value);
+                dropdown.style.display = 'block';
+            });
+
+            searchInput.addEventListener('input', () => {
+                filterClients(searchInput.value);
+                dropdown.style.display = 'block';
+            });
+
+            searchInput.addEventListener('blur', () => {
+                setTimeout(() => {
+                    dropdown.style.display = 'none';
+                    const currentId = clientHiddenInput.value;
+                    const currentClient = state.clients.find(c => c.id === currentId);
+                    if (currentClient) {
+                        searchInput.value = `${currentClient.name} (${currentClient.phone || ''})`;
+                    } else if (state.clients.length > 0) {
+                        const defaultClient = state.clients[0];
+                        searchInput.value = `${defaultClient.name} (${defaultClient.phone || ''})`;
+                        clientHiddenInput.value = defaultClient.id;
+                    }
+                }, 200);
+            });
+
             const qtyIn = document.getElementById('modal-sale-qty');
             const priceIn = document.getElementById('modal-sale-price');
             const typeIn = document.getElementById('modal-sale-type');
