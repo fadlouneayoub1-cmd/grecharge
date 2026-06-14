@@ -183,12 +183,6 @@ function setupEventListeners() {
     document.querySelectorAll('.btn-new-sale-trigger').forEach(btn => {
         btn.addEventListener('click', () => triggerNewSaleModal());
     });
-    const dashScanQrBtn = document.getElementById('dash-btn-scan-qr');
-    if (dashScanQrBtn) {
-        dashScanQrBtn.addEventListener('click', () => {
-            triggerQRScannerModal();
-        });
-    }
     document.getElementById('btn-add-client-trigger').addEventListener('click', () => triggerNewClientModal());
     document.getElementById('btn-add-expense-trigger').addEventListener('click', () => triggerNewExpenseModal());
     document.getElementById('btn-add-stock-trigger').addEventListener('click', () => triggerAddStockModal());
@@ -540,7 +534,7 @@ function renderClientsTable() {
     });
 
     if (filtered.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="8" style="text-align: center; color: var(--text-light); padding: 2rem;">Aucun client trouvé.</td></tr>`;
+        tbody.innerHTML = `<tr><td colspan="7" style="text-align: center; color: var(--text-light); padding: 2rem;">Aucun client trouvé.</td></tr>`;
         return;
     }
 
@@ -552,11 +546,6 @@ function renderClientsTable() {
             <td><span style="font-family: monospace; background:#F1F5F9; padding: 2px 6px; border-radius:4px;">${escapeHTML(client.dealer_number || '-')}</span></td>
             <td>${escapeHTML(client.activity || '-')}</td>
             <td>${escapeHTML(client.address || '-')}</td>
-            <td>
-                <div class="qr-container" title="QR Code Client">
-                    <canvas id="qr-${client.id}"></canvas>
-                </div>
-            </td>
             <td style="max-width: 150px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${escapeHTML(client.notes || '-')}</td>
             <td>
                 <div class="table-actions">
@@ -570,13 +559,6 @@ function renderClientsTable() {
             </td>
         `;
         tbody.appendChild(tr);
-        
-        // Draw Pseudo QR Code representable code
-        setTimeout(() => {
-            const canvas = document.getElementById(`qr-${client.id}`);
-            const seedValue = client.phone || client.name || client.id;
-            drawPseudoQR(canvas, seedValue);
-        }, 10);
     });
 
     // Wire up actions listeners
@@ -585,16 +567,6 @@ function renderClientsTable() {
     });
     document.querySelectorAll('.btn-delete-client').forEach(btn => {
         btn.addEventListener('click', () => deleteClientHandler(btn.getAttribute('data-id')));
-    });
-    document.querySelectorAll('#clients-tbody .qr-container').forEach(container => {
-        container.style.cursor = 'pointer';
-        container.addEventListener('click', () => {
-            const canvas = container.querySelector('canvas');
-            if (canvas) {
-                const clientId = canvas.id.replace('qr-', '');
-                showClientQRModal(clientId);
-            }
-        });
     });
 }
 
@@ -2322,20 +2294,7 @@ ALTER TABLE stock DISABLE ROW LEVEL SECURITY;`;
 
 // 8. HELPERS & FORMATTERS
 
-// Generate QR Code Pattern onto canvas
-function drawPseudoQR(canvas, value) {
-    if (!canvas) return;
-    try {
-        new QRious({
-            element: canvas,
-            value: String(value),
-            size: 120,
-            level: 'M'
-        });
-    } catch (e) {
-        console.error("Error drawing QR code: ", e);
-    }
-}
+// Helper functions
 
 function formatCurrency(val) {
     const num = parseFloat(val || 0);
@@ -2636,223 +2595,6 @@ function renderAndShowInvoiceModal(client, paymentStatus, discountPct, items, in
     });
 }
 
-// Crisp grid-based large QR Code generator
-function drawLargeQR(canvas, value) {
-    if (!canvas) return;
-    try {
-        new QRious({
-            element: canvas,
-            value: String(value),
-            size: 300,
-            level: 'H'
-        });
-    } catch (e) {
-        console.error("Error drawing large QR code: ", e);
-    }
-}
-
-// Show Client QR Modal with print and download capabilities
-function showClientQRModal(clientId) {
-    const client = state.clients.find(c => c.id === clientId);
-    if (!client) return;
-
-    const seedValue = client.phone || client.name || client.id;
-    const isAr = document.documentElement.lang === 'ar';
-    
-    Swal.fire({
-        title: isAr ? 'رمز QR للزبون' : `QR Code Client`,
-        html: `
-            <div style="text-align: center; font-family: 'Outfit', sans-serif;">
-                <h3 style="margin: 0 0 10px 0; font-size: 1.15rem; color: var(--text-main);">${escapeHTML(client.name)}</h3>
-                <div style="background: #F8FAFC; padding: 16px; border-radius: var(--radius-lg); display: inline-block; border: 1px solid var(--border); margin-bottom: 12px;">
-                    <canvas id="modal-qr-canvas" style="display: block; margin: 0 auto; box-shadow: var(--shadow-sm); border-radius: var(--radius-sm);"></canvas>
-                </div>
-                <div style="font-size: 0.85rem; color: var(--text-light); margin-bottom: 15px;">
-                    ${client.phone ? `<div><b>${isAr ? 'الهاتف:' : 'Téléphone:'}</b> ${escapeHTML(client.phone)}</div>` : ''}
-                    ${client.dealer_number ? `<div><b>${isAr ? 'رقم الموزع:' : 'N° Dealer:'}</b> ${escapeHTML(client.dealer_number)}</div>` : ''}
-                </div>
-                <div style="display: flex; gap: 8px; justify-content: center;">
-                    <button id="btn-download-qr" class="btn btn-secondary btn-sm" style="display: inline-flex; align-items: center; gap: 4px; padding: 0.4rem 0.8rem; font-size: 0.8rem;">
-                        📥 ${isAr ? 'تحميل' : 'Télécharger'}
-                    </button>
-                    <button id="btn-print-qr" class="btn btn-secondary btn-sm" style="display: inline-flex; align-items: center; gap: 4px; padding: 0.4rem 0.8rem; font-size: 0.8rem;">
-                        🖨️ ${isAr ? 'طباعة' : 'Imprimer'}
-                    </button>
-                </div>
-            </div>
-        `,
-        showConfirmButton: true,
-        confirmButtonText: isAr ? 'إغلاق' : 'Fermer',
-        confirmButtonColor: '#64748B',
-        customClass: { popup: 'swal2-popup-custom' },
-        didOpen: () => {
-            const canvas = document.getElementById('modal-qr-canvas');
-            drawLargeQR(canvas, seedValue);
-
-            // Download handler
-            document.getElementById('btn-download-qr').addEventListener('click', () => {
-                const link = document.createElement('a');
-                link.download = `QR_${client.name.replace(/\s+/g, '_')}.png`;
-                link.href = canvas.toDataURL();
-                link.click();
-            });
-
-            // Print handler
-            document.getElementById('btn-print-qr').addEventListener('click', () => {
-                const printWin = window.open('', '_blank', 'width=350,height=400');
-                if (!printWin) {
-                    Swal.fire(
-                        isAr ? 'النوافذ المنبثقة محجوبة' : 'Pop-up bloqué', 
-                        isAr ? 'يرجى السماح بالنوافذ المنبثقة.' : 'Veuillez autoriser les fenêtres pop-up.', 
-                        'warning'
-                    );
-                    return;
-                }
-                printWin.document.write(`
-                    <html dir="${isAr ? 'rtl' : 'ltr'}">
-                    <head>
-                        <title>QR Code - ${client.name}</title>
-                        <style>
-                            body {
-                                display: flex;
-                                flex-direction: column;
-                                align-items: center;
-                                justify-content: center;
-                                height: 100vh;
-                                margin: 0;
-                                font-family: sans-serif;
-                                direction: ${isAr ? 'rtl' : 'ltr'};
-                            }
-                            img {
-                                width: 200px;
-                                height: 200px;
-                            }
-                            h3 {
-                                margin-top: 12px;
-                                margin-bottom: 4px;
-                            }
-                            p {
-                                margin: 0;
-                                color: #555;
-                                font-size: 0.9rem;
-                            }
-                        </style>
-                    </head>
-                    <body>
-                        <img src="${canvas.toDataURL()}" />
-                        <h3>${client.name}</h3>
-                        ${client.phone ? `<p>${isAr ? 'الهاتف:' : 'Tél:'} ${client.phone}</p>` : ''}
-                        ${client.dealer_number ? `<p>${isAr ? 'رقم الموزع:' : 'N° Dealer:'} ${client.dealer_number}</p>` : ''}
-                        <script>
-                            window.onload = function() {
-                                window.print();
-                                window.close();
-                            };
-                        </script>
-                    </body>
-                    </html>
-                `);
-                printWin.document.close();
-            });
-        }
-    });
-}
-
-// Simulated QR code scanner modal
-function triggerQRScannerModal() {
-    const isAr = document.documentElement.lang === 'ar';
-    if (state.clients.length === 0) {
-        Swal.fire(
-            isAr ? 'تنبيه' : 'Info', 
-            isAr ? 'لم يتم تسجيل أي زبون. يرجى إضافة زبائن أولاً.' : 'Aucun client enregistré. Veuillez d\'abord ajouter des clients.', 
-            'info'
-        );
-        return;
-    }
-
-    let clientOptions = '';
-    state.clients.forEach(c => {
-        const detail = c.phone || c.dealer_number || (isAr ? 'بدون بيانات' : 'Sans coordonnées');
-        clientOptions += `<option value="${c.id}">${escapeHTML(c.name)} (${escapeHTML(detail)})</option>`;
-    });
-
-    let html5QrCode = null;
-
-    Swal.fire({
-        title: isAr ? 'مسح رمز QR للزبون' : 'Scanner QR Code Client',
-        html: `
-            <div style="text-align: center; font-family: 'Outfit', sans-serif;">
-                <div id="qr-reader" style="width: 100%; max-width: 350px; margin: 0 auto; border: 1px solid var(--border); border-radius: var(--radius-lg); background: #0f172a; overflow: hidden; min-height: 250px; display: flex; align-items: center; justify-content: center; color: white; position: relative; box-shadow: var(--shadow-sm);">
-                    <span id="qr-reader-placeholder" style="font-size: 0.85rem; color: #94a3b8; padding: 20px; z-index: 5;">
-                        ${isAr ? 'جاري تشغيل الكاميرا...' : 'Activation de la caméra...'}
-                    </span>
-                    <!-- Beautiful CSS overlay scanning frame -->
-                    <div class="qr-scanner-overlay">
-                        <div class="qr-scanner-box">
-                            <div class="qr-scanner-laser"></div>
-                        </div>
-                    </div>
-                </div>
-                <div style="margin-top: 15px; display: flex; gap: 8px; justify-content: center;">
-                    <button id="btn-toggle-scanner-source" class="btn btn-secondary btn-sm" style="font-size: 0.8rem; padding: 6px 12px; display: inline-flex; align-items: center; gap: 4px;">
-                        🔄 ${isAr ? 'التبديل إلى المحاكاة' : 'Basculer en Simulation'}
-                    </button>
-                </div>
-                
-                <div id="scanner-simulation-block" style="display: none; margin-top: 15px; text-align: ${isAr ? 'right' : 'left'}; direction: ${isAr ? 'rtl' : 'ltr'};">
-                    <hr style="border: 0; border-top: 1px dashed var(--border); margin: 15px 0;">
-                    <label for="scanner-client-select" style="font-size: 0.85rem; font-weight: 600; margin-bottom: 5px; display: block; color: var(--text-main);">${isAr ? 'اختر الزبون يدويًا :' : 'Choisir le Client manuellement :'}</label>
-                    <select id="scanner-client-select" class="form-select" style="width: 100%; border: 1px solid var(--border); padding: 8px; border-radius: var(--radius-md); font-size: 0.9rem; margin-bottom: 10px;">
-                        ${clientOptions}
-                    </select>
-                    <button id="btn-run-simulation" class="btn btn-primary btn-sm" style="width: 100%; padding: 8px; background-color: var(--primary); border: none; font-weight: 600; font-size: 0.85rem; border-radius: var(--radius-md);">
-                        ⚡ ${isAr ? 'محاكاة الكشف' : 'Simuler Détection'}
-                    </button>
-                </div>
-            </div>
-        `,
-        showConfirmButton: false,
-        showCancelButton: true,
-        cancelButtonText: isAr ? 'إلغاء' : 'Annuler',
-        customClass: { popup: 'swal2-popup-custom' },
-        didOpen: () => {
-            const placeholder = document.getElementById('qr-reader-placeholder');
-            
-            // Initialize scanner
-            try {
-                html5QrCode = new Html5Qrcode("qr-reader");
-                const qrCodeSuccessCallback = (decodedText) => {
-                    console.log(`QR Decoded: ${decodedText}`);
-                    
-                    // Match client
-                    const client = state.clients.find(c => 
-                        c.id === decodedText || 
-                        c.phone === decodedText || 
-                        c.name === decodedText
-                    );
-                    
-                    if (html5QrCode && html5QrCode.isScanning) {
-                        html5QrCode.stop().then(() => {
-                            Swal.close();
-                            handleScannedClient(client);
-                        }).catch(err => {
-                            console.error("Stop scanner error", err);
-                            Swal.close();
-                            handleScannedClient(client);
-                        });
-                    } else {
-                        Swal.close();
-                        handleScannedClient(client);
-                    }
-                };
-                
-                const config = { 
-                    fps: 15, 
-                    qrbox: function(width, height) {
-                        const minEdge = Math.min(width, height);
-                        const qrboxSize = Math.floor(minEdge * 0.7);
-                        return {
-                            width: qrboxSize,
                             height: qrboxSize
                         };
                     },
