@@ -619,23 +619,62 @@
                         
                         <div class="chart-card" style="height: auto;">
                             <div class="chart-card-title" data-i18n="tarifs_comm_title">Tarifs et Commission par défaut</div>
-                            <div style="font-size: 0.85rem; display: flex; flex-direction: column; gap: 1rem;">
-                                <div style="display:flex; justify-content: space-between; border-bottom: 1px solid var(--border); padding-bottom: 0.5rem;">
-                                    <span style="color: var(--maroc-telecom); font-weight: 600;">Maroc Telecom</span>
-                                    <span>Recharge: Comm. 4.5% | SIM: 15.00 DH</span>
+                            <form id="form-commissions" style="font-size: 0.85rem; display: flex; flex-direction: column; gap: 0.75rem;">
+                                <!-- Maroc Telecom -->
+                                <div style="border-bottom: 1px solid var(--border); padding-bottom: 0.75rem;">
+                                    <div style="color: var(--maroc-telecom); font-weight: 600; margin-bottom: 0.25rem;">Maroc Telecom</div>
+                                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem;">
+                                        <div class="form-group" style="margin-bottom: 0;">
+                                            <label style="font-size: 0.75rem;" data-i18n="comm_recharge_lbl">Recharge Comm. (%)</label>
+                                            <input type="number" id="comm-mt-recharge" class="form-input" step="any" min="0" max="100" style="padding: 0.25rem 0.5rem; font-size: 0.8rem;" />
+                                        </div>
+                                        <div class="form-group" style="margin-bottom: 0;">
+                                            <label style="font-size: 0.75rem;" data-i18n="comm_sim_lbl">SIM Comm. (DH)</label>
+                                            <input type="number" id="comm-mt-sim" class="form-input" step="any" min="0" style="padding: 0.25rem 0.5rem; font-size: 0.8rem;" />
+                                        </div>
+                                    </div>
                                 </div>
-                                <div style="display:flex; justify-content: space-between; border-bottom: 1px solid var(--border); padding-bottom: 0.5rem;">
-                                    <span style="color: var(--orange); font-weight: 600;">Orange</span>
-                                    <span>Recharge: Comm. 5.0% | SIM: 20.00 DH</span>
+
+                                <!-- Orange -->
+                                <div style="border-bottom: 1px solid var(--border); padding-bottom: 0.75rem;">
+                                    <div style="color: var(--orange); font-weight: 600; margin-bottom: 0.25rem;">Orange</div>
+                                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem;">
+                                        <div class="form-group" style="margin-bottom: 0;">
+                                            <label style="font-size: 0.75rem;" data-i18n="comm_recharge_lbl">Recharge Comm. (%)</label>
+                                            <input type="number" id="comm-orange-recharge" class="form-input" step="any" min="0" max="100" style="padding: 0.25rem 0.5rem; font-size: 0.8rem;" />
+                                        </div>
+                                        <div class="form-group" style="margin-bottom: 0;">
+                                            <label style="font-size: 0.75rem;" data-i18n="comm_sim_lbl">SIM Comm. (DH)</label>
+                                            <input type="number" id="comm-orange-sim" class="form-input" step="any" min="0" style="padding: 0.25rem 0.5rem; font-size: 0.8rem;" />
+                                        </div>
+                                    </div>
                                 </div>
-                                <div style="display:flex; justify-content: space-between; border-bottom: 1px solid var(--border); padding-bottom: 0.5rem;">
-                                    <span style="color: var(--inwi); font-weight: 600;">Inwi</span>
-                                    <span>Recharge: Comm. 6.0% | SIM: 18.00 DH</span>
+
+                                <!-- Inwi -->
+                                <div style="border-bottom: 1px solid var(--border); padding-bottom: 0.75rem;">
+                                    <div style="color: var(--inwi); font-weight: 600; margin-bottom: 0.25rem;">Inwi</div>
+                                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem;">
+                                        <div class="form-group" style="margin-bottom: 0;">
+                                            <label style="font-size: 0.75rem;" data-i18n="comm_recharge_lbl">Recharge Comm. (%)</label>
+                                            <input type="number" id="comm-inwi-recharge" class="form-input" step="any" min="0" max="100" style="padding: 0.25rem 0.5rem; font-size: 0.8rem;" />
+                                        </div>
+                                        <div class="form-group" style="margin-bottom: 0;">
+                                            <label style="font-size: 0.75rem;" data-i18n="comm_sim_lbl">SIM Comm. (DH)</label>
+                                            <input type="number" id="comm-inwi-sim" class="form-input" step="any" min="0" style="padding: 0.25rem 0.5rem; font-size: 0.8rem;" />
+                                        </div>
+                                    </div>
                                 </div>
+
+                                <div style="display: flex; gap: 0.5rem; margin-top: 0.5rem;">
+                                    <button type="submit" class="btn btn-primary btn-sm" id="btn-save-comm" style="flex:1; background-color: var(--primary); border: none; font-weight: 600;">
+                                        <span data-i18n="save_commissions">Enregistrer les commissions</span>
+                                    </button>
+                                </div>
+
                                 <div style="background-color: var(--primary-light); color: var(--primary-hover); padding: 0.75rem; border-radius: var(--radius-md); font-size: 0.8rem;">
-                                    💡 Ces paramètres servent à pré-remplir les formulaires de vente et calculer vos marges lors de l'enregistrement de transactions.
+                                    💡 Ces paramètres servent à calculer vos marges et votre Bénéfice Net (Arbah) sur le tableau de bord. Par défaut, les taux de commission de recharge sont réglés sur 7.0%.
                                 </div>
-                            </div>
+                            </form>
                         </div>
                     </div>
                 </section>

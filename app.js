@@ -56,6 +56,7 @@ function initApp() {
     setupNavRouting();
     checkAuthSession();
     setupEventListeners();
+    populateCommissionInputs();
 }
 
 // Check session in localStorage
@@ -194,6 +195,32 @@ function setupEventListeners() {
     // Config controls
     document.getElementById('btn-seed-data').addEventListener('click', () => seedDatabaseDemoData());
     document.getElementById('btn-clear-db').addEventListener('click', () => clearDatabaseTables());
+
+    const formCommissions = document.getElementById('form-commissions');
+    if (formCommissions) {
+        formCommissions.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const isAr = document.documentElement.lang === 'ar';
+            const comms = {
+                mt_recharge: parseFloat(document.getElementById('comm-mt-recharge').value || 0),
+                mt_sim: parseFloat(document.getElementById('comm-mt-sim').value || 0),
+                orange_recharge: parseFloat(document.getElementById('comm-orange-recharge').value || 0),
+                orange_sim: parseFloat(document.getElementById('comm-orange-sim').value || 0),
+                inwi_recharge: parseFloat(document.getElementById('comm-inwi-recharge').value || 0),
+                inwi_sim: parseFloat(document.getElementById('comm-inwi-sim').value || 0)
+            };
+            saveCommissions(comms);
+            updateDashboardStats();
+            Swal.fire({
+                icon: 'success',
+                title: isAr ? 'تم حفظ الإعدادات' : 'Paramètres enregistrés',
+                text: isAr ? 'تم تحديث نسب العمولات بنجاح!' : 'Les taux de commission ont été mis à jour avec succès !',
+                timer: 1500,
+                showConfirmButton: false,
+                customClass: { popup: 'swal2-popup-custom' }
+            });
+        });
+    }
 
     // Search and filter triggers
     document.getElementById('clients-search').addEventListener('input', () => renderClientsTable());
@@ -414,6 +441,8 @@ function updateDashboardStats() {
     let totalSimSales = 0;
     let totalSimQty = 0;
     let totalProfit = 0; // Net profit calculation from sales
+
+    const comms = loadCommissions();
     
     state.sales.forEach(sale => {
         const netToPay = parseFloat(sale.net_to_pay || 0);
@@ -424,11 +453,11 @@ function updateDashboardStats() {
         if (sale.product_type === 'Recharge') {
             totalRechargeSales += netToPay;
             
-            // Recharges default commissions: MT=4.5%, Orange=5%, Inwi=6%
+            // Recharges commissions from config
             let buyCommPct = 0;
-            if (sale.operator === 'Maroc Telecom') buyCommPct = 4.5;
-            else if (sale.operator === 'Orange') buyCommPct = 5.0;
-            else if (sale.operator === 'Inwi') buyCommPct = 6.0;
+            if (sale.operator === 'Maroc Telecom') buyCommPct = comms.mt_recharge;
+            else if (sale.operator === 'Orange') buyCommPct = comms.orange_recharge;
+            else if (sale.operator === 'Inwi') buyCommPct = comms.inwi_recharge;
 
             const buyCommAmount = totalBrut * (buyCommPct / 100);
             const saleProfit = buyCommAmount - discountAmount;
@@ -438,11 +467,11 @@ function updateDashboardStats() {
             totalSimSales += netToPay;
             totalSimQty += qty;
             
-            // SIM default commissions: MT=15.00 DH, Orange=20.00 DH, Inwi=18.00 DH
+            // SIM commissions from config
             let buyCommPerUnit = 0;
-            if (sale.operator === 'Maroc Telecom') buyCommPerUnit = 15.00;
-            else if (sale.operator === 'Orange') buyCommPerUnit = 20.00;
-            else if (sale.operator === 'Inwi') buyCommPerUnit = 18.00;
+            if (sale.operator === 'Maroc Telecom') buyCommPerUnit = comms.mt_sim;
+            else if (sale.operator === 'Orange') buyCommPerUnit = comms.orange_sim;
+            else if (sale.operator === 'Inwi') buyCommPerUnit = comms.inwi_sim;
 
             const buyCommAmount = qty * buyCommPerUnit;
             const saleProfit = buyCommAmount - discountAmount;
@@ -2390,6 +2419,48 @@ ALTER TABLE stock DISABLE ROW LEVEL SECURITY;`;
 
 // Helper functions
 
+function loadCommissions() {
+    const defaultComms = {
+        mt_recharge: 7.0,
+        mt_sim: 15.0,
+        orange_recharge: 7.0,
+        orange_sim: 20.0,
+        inwi_recharge: 7.0,
+        inwi_sim: 18.0
+    };
+    
+    let comms = localStorage.getItem('grecharge_commissions');
+    if (comms) {
+        try {
+            return { ...defaultComms, ...JSON.parse(comms) };
+        } catch (e) {
+            console.error("Error parsing commissions:", e);
+        }
+    }
+    return defaultComms;
+}
+
+function saveCommissions(comms) {
+    localStorage.setItem('grecharge_commissions', JSON.stringify(comms));
+}
+
+function populateCommissionInputs() {
+    const comms = loadCommissions();
+    const mtRecharge = document.getElementById('comm-mt-recharge');
+    const mtSim = document.getElementById('comm-mt-sim');
+    const orangeRecharge = document.getElementById('comm-orange-recharge');
+    const orangeSim = document.getElementById('comm-orange-sim');
+    const inwiRecharge = document.getElementById('comm-inwi-recharge');
+    const inwiSim = document.getElementById('comm-inwi-sim');
+    
+    if (mtRecharge) mtRecharge.value = comms.mt_recharge;
+    if (mtSim) mtSim.value = comms.mt_sim;
+    if (orangeRecharge) orangeRecharge.value = comms.orange_recharge;
+    if (orangeSim) orangeSim.value = comms.orange_sim;
+    if (inwiRecharge) inwiRecharge.value = comms.inwi_recharge;
+    if (inwiSim) inwiSim.value = comms.inwi_sim;
+}
+
 function formatCurrency(val) {
     const num = parseFloat(val || 0);
     return num.toLocaleString('fr-FR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' DH';
@@ -2779,7 +2850,10 @@ const TRANSLATIONS = {
         original_article: "Article Originel",
         initial_debt: "Dette Initiale (DH)",
         remaining_amount: "Reste Dû (DH)",
-        amount_dh: "Montant (DH)"
+        amount_dh: "Montant (DH)",
+        comm_recharge_lbl: "Recharge Comm. (%)",
+        comm_sim_lbl: "SIM Comm. (DH)",
+        save_commissions: "Enregistrer les commissions"
     },
     ar: {
         app_title: "مدير الشحن والشرائح",
@@ -2864,7 +2938,10 @@ const TRANSLATIONS = {
         original_article: "المنتج الأصلي",
         initial_debt: "الدين الأصلي (د.م.)",
         remaining_amount: "المتبقي (د.م.)",
-        amount_dh: "المبلغ (د.م.)"
+        amount_dh: "المبلغ (د.م.)",
+        comm_recharge_lbl: "عمولة التعبئة (%)",
+        comm_sim_lbl: "عمولة شريحة SIM (د.م.)",
+        save_commissions: "حفظ نسب العمولات"
     }
 };
 
