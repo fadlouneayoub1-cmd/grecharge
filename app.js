@@ -2325,57 +2325,15 @@ ALTER TABLE stock DISABLE ROW LEVEL SECURITY;`;
 // Generate QR Code Pattern onto canvas
 function drawPseudoQR(canvas, value) {
     if (!canvas) return;
-    const ctx = canvas.getContext('2d');
-    const size = 32;
-    canvas.width = size;
-    canvas.height = size;
-    
-    // Clear canvas
-    ctx.fillStyle = '#FFFFFF';
-    ctx.fillRect(0, 0, size, size);
-    
-    // Draw Finder Patterns (Corners)
-    ctx.fillStyle = '#000000';
-    ctx.fillRect(0, 0, 8, 8);
-    ctx.fillStyle = '#FFFFFF';
-    ctx.fillRect(2, 2, 4, 4);
-    ctx.fillStyle = '#000000';
-    ctx.fillRect(3, 3, 2, 2);
-
-    ctx.fillStyle = '#000000';
-    ctx.fillRect(size - 8, 0, 8, 8);
-    ctx.fillStyle = '#FFFFFF';
-    ctx.fillRect(size - 6, 2, 4, 4);
-    ctx.fillStyle = '#000000';
-    ctx.fillRect(size - 5, 3, 2, 2);
-
-    ctx.fillStyle = '#000000';
-    ctx.fillRect(0, size - 8, 8, 8);
-    ctx.fillStyle = '#FFFFFF';
-    ctx.fillRect(2, size - 6, 4, 4);
-    ctx.fillStyle = '#000000';
-    ctx.fillRect(3, size - 5, 2, 2);
-
-    // Simple hash code generator from seed string
-    let hash = 0;
-    const valStr = String(value);
-    for (let i = 0; i < valStr.length; i++) {
-        hash = valStr.charCodeAt(i) + ((hash << 5) - hash);
-    }
-
-    // Draw random pixel noise outside corners
-    for (let x = 0; x < size; x++) {
-        for (let y = 0; y < size; y++) {
-            // Avoid corner areas
-            if ((x < 9 && y < 9) || (x > size - 9 && y < 9) || (x < 9 && y > size - 9)) continue;
-            
-            // Seeded random value
-            const noise = Math.abs(Math.sin(x * 12.9898 + y * 78.233 + hash) * 43758.5453) % 1;
-            if (noise > 0.5) {
-                ctx.fillStyle = '#000000';
-                ctx.fillRect(x, y, 1, 1);
-            }
-        }
+    try {
+        new QRious({
+            element: canvas,
+            value: String(value),
+            size: 120,
+            level: 'M'
+        });
+    } catch (e) {
+        console.error("Error drawing QR code: ", e);
     }
 }
 
@@ -2681,49 +2639,15 @@ function renderAndShowInvoiceModal(client, paymentStatus, discountPct, items, in
 // Crisp grid-based large QR Code generator
 function drawLargeQR(canvas, value) {
     if (!canvas) return;
-    const ctx = canvas.getContext('2d');
-    const gridSize = 32;
-    const blockSize = 6; // crisp rendering size
-    const canvasSize = gridSize * blockSize;
-    canvas.width = canvasSize;
-    canvas.height = canvasSize;
-    
-    // Clear canvas
-    ctx.fillStyle = '#FFFFFF';
-    ctx.fillRect(0, 0, canvasSize, canvasSize);
-    
-    // Draw Finder Patterns (Corners)
-    const drawFinderPattern = (offsetX, offsetY) => {
-        ctx.fillStyle = '#000000';
-        ctx.fillRect(offsetX * blockSize, offsetY * blockSize, 8 * blockSize, 8 * blockSize);
-        ctx.fillStyle = '#FFFFFF';
-        ctx.fillRect((offsetX + 2) * blockSize, (offsetY + 2) * blockSize, 4 * blockSize, 4 * blockSize);
-        ctx.fillStyle = '#000000';
-        ctx.fillRect((offsetX + 3) * blockSize, (offsetY + 3) * blockSize, 2 * blockSize, 2 * blockSize);
-    };
-    
-    drawFinderPattern(0, 0);
-    drawFinderPattern(gridSize - 8, 0);
-    drawFinderPattern(0, gridSize - 8);
-    
-    // Simple hash code generator from seed string
-    let hash = 0;
-    const valStr = String(value);
-    for (let i = 0; i < valStr.length; i++) {
-        hash = valStr.charCodeAt(i) + ((hash << 5) - hash);
-    }
-    
-    // Draw noise blocks outside corners
-    for (let x = 0; x < gridSize; x++) {
-        for (let y = 0; y < gridSize; y++) {
-            if ((x < 9 && y < 9) || (x > gridSize - 9 && y < 9) || (x < 9 && y > gridSize - 9)) continue;
-            
-            const noise = Math.abs(Math.sin(x * 12.9898 + y * 78.233 + hash) * 43758.5453) % 1;
-            if (noise > 0.5) {
-                ctx.fillStyle = '#000000';
-                ctx.fillRect(x * blockSize, y * blockSize, blockSize, blockSize);
-            }
-        }
+    try {
+        new QRious({
+            element: canvas,
+            value: String(value),
+            size: 300,
+            level: 'H'
+        });
+    } catch (e) {
+        console.error("Error drawing large QR code: ", e);
     }
 }
 
@@ -2852,46 +2776,149 @@ function triggerQRScannerModal() {
         clientOptions += `<option value="${c.id}">${escapeHTML(c.name)} (${escapeHTML(detail)})</option>`;
     });
 
+    let html5QrCode = null;
+
     Swal.fire({
         title: isAr ? 'مسح رمز QR للزبون' : 'Scanner QR Code Client',
         html: `
-            <div style="text-align: ${isAr ? 'right' : 'left'}; font-family: 'Outfit', sans-serif; direction: ${isAr ? 'rtl' : 'ltr'};">
-                <div style="background: #F1F5F9; border: 1px dashed #8B5CF6; padding: 20px; border-radius: var(--radius-lg); text-align: center; margin-bottom: 15px;">
-                    <div style="font-size: 2rem; margin-bottom: 8px;">📷</div>
-                    <p style="font-size: 0.85rem; font-weight: 600; color: var(--text-main); margin: 0 0 4px 0;">${isAr ? 'محاكاة مسح الكاميرا' : 'Simulation de scan caméra'}</p>
-                    <p style="font-size: 0.75rem; color: var(--text-light); margin: 0;">${isAr ? 'اختر الزبون لمحاكاة مسح رمز QR.' : 'Sélectionnez le client pour simuler le scan du QR code.'}</p>
+            <div style="text-align: center; font-family: 'Outfit', sans-serif;">
+                <div id="qr-reader" style="width: 100%; max-width: 350px; margin: 0 auto; border: 1px solid var(--border); border-radius: var(--radius-lg); background: #0f172a; overflow: hidden; min-height: 250px; display: flex; align-items: center; justify-content: center; color: white; position: relative; box-shadow: var(--shadow-sm);">
+                    <span id="qr-reader-placeholder" style="font-size: 0.85rem; color: #94a3b8; padding: 20px;">
+                        ${isAr ? 'جاري تشغيل الكاميرا...' : 'Activation de la caméra...'}
+                    </span>
                 </div>
-                <div class="form-group">
-                    <label for="scanner-client-select">${isAr ? 'اختر الزبون المكتشف :' : 'Choisir le Client détecté :'}</label>
-                    <select id="scanner-client-select" class="form-select" style="width: 100%; border: 1px solid var(--border); padding: 8px; border-radius: var(--radius-md);">
+                <div style="margin-top: 15px; display: flex; gap: 8px; justify-content: center;">
+                    <button id="btn-toggle-scanner-source" class="btn btn-secondary btn-sm" style="font-size: 0.8rem; padding: 6px 12px; display: inline-flex; align-items: center; gap: 4px;">
+                        🔄 ${isAr ? 'التبديل إلى المحاكاة' : 'Basculer en Simulation'}
+                    </button>
+                </div>
+                
+                <div id="scanner-simulation-block" style="display: none; margin-top: 15px; text-align: ${isAr ? 'right' : 'left'}; direction: ${isAr ? 'rtl' : 'ltr'};">
+                    <hr style="border: 0; border-top: 1px dashed var(--border); margin: 15px 0;">
+                    <label for="scanner-client-select" style="font-size: 0.85rem; font-weight: 600; margin-bottom: 5px; display: block; color: var(--text-main);">${isAr ? 'اختر الزبون يدويًا :' : 'Choisir le Client manuellement :'}</label>
+                    <select id="scanner-client-select" class="form-select" style="width: 100%; border: 1px solid var(--border); padding: 8px; border-radius: var(--radius-md); font-size: 0.9rem; margin-bottom: 10px;">
                         ${clientOptions}
                     </select>
+                    <button id="btn-run-simulation" class="btn btn-primary btn-sm" style="width: 100%; padding: 8px; background-color: var(--primary); border: none; font-weight: 600; font-size: 0.85rem; border-radius: var(--radius-md);">
+                        ⚡ ${isAr ? 'محاكاة الكشف' : 'Simuler Détection'}
+                    </button>
                 </div>
             </div>
         `,
+        showConfirmButton: false,
         showCancelButton: true,
         cancelButtonText: isAr ? 'إلغاء' : 'Annuler',
-        confirmButtonText: isAr ? '⚡ محاكاة الكشف' : '⚡ Simuler Détection',
-        confirmButtonColor: '#8B5CF6',
         customClass: { popup: 'swal2-popup-custom' },
-        preConfirm: () => {
-            const clientId = document.getElementById('scanner-client-select').value;
-            return state.clients.find(c => c.id === clientId);
+        didOpen: () => {
+            const placeholder = document.getElementById('qr-reader-placeholder');
+            
+            // Initialize scanner
+            try {
+                html5QrCode = new Html5Qrcode("qr-reader");
+                const qrCodeSuccessCallback = (decodedText) => {
+                    console.log(`QR Decoded: ${decodedText}`);
+                    
+                    // Match client
+                    const client = state.clients.find(c => 
+                        c.id === decodedText || 
+                        c.phone === decodedText || 
+                        c.name === decodedText
+                    );
+                    
+                    if (html5QrCode && html5QrCode.isScanning) {
+                        html5QrCode.stop().then(() => {
+                            Swal.close();
+                            handleScannedClient(client);
+                        }).catch(err => {
+                            console.error("Stop scanner error", err);
+                            Swal.close();
+                            handleScannedClient(client);
+                        });
+                    } else {
+                        Swal.close();
+                        handleScannedClient(client);
+                    }
+                };
+                
+                const config = { fps: 10, qrbox: { width: 220, height: 220 } };
+                
+                html5QrCode.start(
+                    { facingMode: "environment" }, 
+                    config, 
+                    qrCodeSuccessCallback
+                ).then(() => {
+                    if (placeholder) placeholder.style.display = 'none';
+                }).catch(err => {
+                    console.warn("Camera start failed, auto-falling back", err);
+                    if (placeholder) {
+                        placeholder.innerHTML = `<span style="color: #ef4444; padding: 10px; font-weight: 500;">
+                            ${isAr ? '⚠️ فشل الاتصال بالكاميرا. تم تفعيل خيار المحاكاة.' : '⚠️ Caméra inaccessible. Mode simulation activé.'}
+                        </span>`;
+                    }
+                    document.getElementById('scanner-simulation-block').style.display = 'block';
+                    document.getElementById('btn-toggle-scanner-source').style.display = 'none';
+                });
+            } catch (e) {
+                console.error("HTML5 QR initialization error", e);
+                document.getElementById('scanner-simulation-block').style.display = 'block';
+                document.getElementById('btn-toggle-scanner-source').style.display = 'none';
+            }
+            
+            // Toggle simulator block
+            document.getElementById('btn-toggle-scanner-source').addEventListener('click', () => {
+                const simBlock = document.getElementById('scanner-simulation-block');
+                if (simBlock.style.display === 'none') {
+                    simBlock.style.display = 'block';
+                    document.getElementById('btn-toggle-scanner-source').innerText = isAr ? '🔄 إخفاء المحاكاة' : '🔄 Masquer la Simulation';
+                } else {
+                    simBlock.style.display = 'none';
+                    document.getElementById('btn-toggle-scanner-source').innerText = isAr ? '🔄 التبديل إلى المحاكاة' : '🔄 Basculer en Simulation';
+                }
+            });
+            
+            // Trigger simulation
+            document.getElementById('btn-run-simulation').addEventListener('click', () => {
+                const clientId = document.getElementById('scanner-client-select').value;
+                const client = state.clients.find(c => c.id === clientId);
+                
+                if (html5QrCode && html5QrCode.isScanning) {
+                    html5QrCode.stop().finally(() => {
+                        Swal.close();
+                        triggerNewSaleModal(clientId);
+                    });
+                } else {
+                    Swal.close();
+                    triggerNewSaleModal(clientId);
+                }
+            });
+        },
+        willClose: () => {
+            if (html5QrCode && html5QrCode.isScanning) {
+                html5QrCode.stop().catch(err => console.error("Scanner stop error on modal close", err));
+            }
         }
-    }).then((result) => {
-        if (result.isConfirmed && result.value) {
-            const client = result.value;
+    });
+
+    function handleScannedClient(client) {
+        if (client) {
             Swal.fire({
                 icon: 'success',
                 title: isAr ? 'تم مسح رمز QR بنجاح!' : 'QR Code Scanné !',
                 text: isAr ? `تم تحديد الزبون: ${client.name}` : `Client identifié : ${client.name}`,
-                timer: 1000,
+                timer: 1500,
                 showConfirmButton: false
             }).then(() => {
                 triggerNewSaleModal(client.id);
             });
+        } else {
+            Swal.fire({
+                icon: 'error',
+                title: isAr ? 'رمز غير معروف' : 'QR Code inconnu',
+                text: isAr ? 'رمز QR الممسوح لا يطابق أي زبون مسجل.' : 'Le QR Code ne correspond à aucun client enregistré.',
+                confirmButtonColor: '#8B5CF6'
+            });
         }
-    });
+    }
 }
 
 // ==========================================
