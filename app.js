@@ -2615,6 +2615,13 @@ function shareInvoiceWhatsApp(clientPhone, clientName, invoiceRef, date, items, 
     items.forEach(item => {
         message += `• ${item.product_name} (${item.operator})\n`;
         message += `  ${item.quantity} x ${item.unit_price.toFixed(2)} DH = *${item.total.toFixed(2)} DH*\n`;
+        if (item.discount > 0) {
+            if (isAr) {
+                message += `  تخفيض: -${item.discount.toFixed(2)} DH\n`;
+            } else {
+                message += `  Remise: -${item.discount.toFixed(2)} DH\n`;
+            }
+        }
         totalGross += item.quantity * item.unit_price;
         discountAmount += item.discount || 0;
         totalNet += item.total;
@@ -2696,6 +2703,7 @@ function renderAndShowInvoiceModal(client, paymentStatus, items, invoiceRef, dat
                 <div style="flex: 2; word-break: break-word; font-weight: 500; text-align: ${isAr ? 'right' : 'left'};">
                     ${escapeHTML(item.product_name)}
                     <span style="font-size: 9px; color: #555; margin-left: 4px; margin-right: 4px;">(${escapeHTML(item.operator)})</span>
+                    ${item.discount > 0 ? `<div style="font-size: 8.5px; color: #c2410c; margin-top: 1px; font-weight: normal;">${isAr ? 'تخفيض' : 'Remise'}: -${item.discount.toFixed(2)} DH</div>` : ''}
                 </div>
                 <div style="flex: 0.8; text-align: ${isAr ? 'left' : 'right'};">x${item.quantity}</div>
                 <div style="flex: 1.2; text-align: ${isAr ? 'left' : 'right'};">${item.unit_price.toFixed(2)}</div>
