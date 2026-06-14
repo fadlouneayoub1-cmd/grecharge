@@ -1368,7 +1368,7 @@ function triggerNewSaleModal(preselectedClientId = null) {
                         </div>
                         <div class="form-group" style="margin-bottom:0;">
                             <label style="font-size:0.75rem;">${isAr ? 'التخفيض (%)' : 'Remise (%)'}</label>
-                            <input type="number" id="modal-sale-item-discount" class="form-input" value="0" min="0" max="100" step="any" placeholder="0" style="padding:0.4rem 0.6rem; font-size:0.8rem;">
+                            <input type="number" id="modal-sale-item-discount" class="form-input" min="0" max="100" step="any" placeholder="0" style="padding:0.4rem 0.6rem; font-size:0.8rem;">
                         </div>
                         <button type="button" class="btn btn-primary btn-sm" id="btn-add-to-cart" style="height:32px; padding:0; background-color:var(--success); font-size:0.8rem; font-weight:600;">
                             ${isAr ? '+ إضافة' : '+ Ajouter'}
@@ -2020,7 +2020,7 @@ function triggerAddStockModal() {
                     </div>
                     <div class="form-group" style="margin-bottom:0;">
                         <label>${isAr ? 'التخفيض (%)' : 'Remise (%)'}</label>
-                        <input type="number" id="modal-invoice-discount" class="form-input" value="0" min="0" max="100">
+                        <input type="number" id="modal-invoice-discount" class="form-input" min="0" max="100" placeholder="0">
                     </div>
                 </div>
                 
@@ -2099,7 +2099,7 @@ function triggerAddStockModal() {
                         <label style="font-size:0.75rem; font-weight:700; color:var(--text-main); white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">
                             ${escapeHTML(item.product_name)} <span style="color:var(--text-muted); font-weight:500;">(${stockText}: ${item.quantity})</span>
                         </label>
-                        <input type="number" class="form-input invoice-qty-input" data-id="${item.id}" value="0" min="0" placeholder="0" style="padding:0.35rem 0.5rem; font-size:0.8rem; background-color:white;">
+                        <input type="number" class="form-input invoice-qty-input" data-id="${item.id}" min="0" placeholder="0" style="padding:0.35rem 0.5rem; font-size:0.8rem; background-color:white;">
                     `;
                     container.appendChild(div);
                 });
