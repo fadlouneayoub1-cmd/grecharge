@@ -740,7 +740,7 @@ body {
         bottom: 0;
         top: auto !important;
         width: 100% !important;
-        height: 65px !important;
+        height: 76px !important;
         background-color: #581C87 !important;
         flex-direction: row !important;
         border-top: 1px solid rgba(255, 255, 255, 0.1) !important;
@@ -766,11 +766,11 @@ body {
     
     .sidebar-menu {
         flex-direction: row !important;
-        padding: 0 0.25rem !important;
+        padding: 0 0.5rem !important;
         gap: 0 !important;
         width: 100% !important;
         height: 100% !important;
-        justify-content: space-around !important;
+        justify-content: flex-start !important; /* Allow natural alignment for scroll */
         align-items: center !important;
         overflow-x: auto !important;
         white-space: nowrap !important;
@@ -783,7 +783,7 @@ body {
     }
     
     .sidebar-menu li {
-        flex: 1 !important;
+        flex: 0 0 auto !important; /* Do not squish items, allow scrolling if screen is narrow */
         display: flex !important;
         justify-content: center !important;
         margin: 0 !important;
@@ -793,44 +793,44 @@ body {
         flex-direction: column !important;
         align-items: center !important;
         justify-content: center !important;
-        gap: 0.15rem !important;
-        padding: 0.4rem 0.1rem !important;
-        font-size: 0.625rem !important;
+        gap: 0.2rem !important;
+        padding: 0.4rem 0.65rem !important; /* More horizontal padding for spacing */
+        font-size: 0.72rem !important; /* Larger font size */
         color: #E9D5FF !important;
-        width: 100% !important;
+        width: auto !important;
         text-align: center !important;
-        border-radius: var(--radius-sm) !important;
+        border-radius: var(--radius-md) !important;
         background: transparent !important;
     }
     
     .sidebar-link.active {
-        background-color: rgba(255, 255, 255, 0.1) !important;
+        background-color: rgba(255, 255, 255, 0.12) !important;
         color: white !important;
     }
     
     .sidebar-link svg {
-        width: 20px !important;
-        height: 20px !important;
+        width: 22px !important; /* Larger icons */
+        height: 22px !important;
         margin: 0 !important;
     }
     
     .sidebar-link span {
-        font-size: 0.58rem !important;
+        font-size: 0.68rem !important; /* Larger text size */
         display: block !important;
-        max-width: 60px !important;
-        overflow: hidden !important;
-        text-overflow: ellipsis !important;
+        max-width: none !important; /* Remove limits to prevent text truncation */
+        overflow: visible !important;
+        text-overflow: clip !important;
         white-space: nowrap !important;
     }
-
+ 
     /* Content Layout Adjustment for Fixed Bottom Nav */
     .main-content {
-        padding-bottom: 65px !important; /* Prevent bottom navigation from covering screen elements */
+        padding-bottom: 76px !important; /* Prevent bottom navigation from covering screen elements */
     }
     
     .page-container {
         padding: 1rem !important;
-        padding-bottom: 80px !important; /* Extra padding to scroll past the bottom bar */
+        padding-bottom: 95px !important; /* Extra padding to scroll past the bottom bar */
     }
 
     .hamburger {

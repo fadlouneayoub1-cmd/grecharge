@@ -97,6 +97,11 @@ function setupNavRouting() {
             links.forEach(l => l.classList.remove('active'));
             link.classList.add('active');
             
+            // Scroll tab into view on mobile
+            if (window.innerWidth <= 768) {
+                link.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+            }
+            
             // Switch Active View Panel
             sections.forEach(s => s.classList.add('hidden'));
             const activeSection = document.getElementById(`view-${target}`);
