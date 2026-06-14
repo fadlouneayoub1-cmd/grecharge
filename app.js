@@ -2028,28 +2028,46 @@ async function triggerQuickRestock(id) {
     const isAr = document.documentElement.lang === 'ar';
     Swal.fire({
         title: isAr ? 'تزويد المخزون' : 'Approvisionner Stock',
-        html: isAr 
-            ? `<div style="text-align: right; direction: rtl; margin-bottom: 10px;">إضافة مخزون لـ : <b>${escapeHTML(item.product_name)}</b> (${escapeHTML(item.operator)})</div>`
-            : `Ajouter du stock pour : <b>${escapeHTML(item.product_name)}</b> (${escapeHTML(item.operator)})`,
-        input: 'number',
-        inputAttributes: { min: 1, step: 1 },
-        inputValue: 100,
+        html: `
+            <div style="text-align:${isAr ? 'right' : 'left'}; direction: ${isAr ? 'rtl' : 'ltr'};">
+                <div style="margin-bottom: 1rem; font-size: 0.9rem; border-bottom: 1px solid var(--border); padding-bottom: 0.5rem; color: var(--text-main);">
+                    ${isAr 
+                        ? `إضافة مخزون لـ : <b>${escapeHTML(item.product_name)}</b> (${escapeHTML(item.operator)})` 
+                        : `Ajouter du stock pour : <b>${escapeHTML(item.product_name)}</b> (${escapeHTML(item.operator)})`}
+                </div>
+                <div class="form-group" style="margin-bottom: 1rem;">
+                    <label>${isAr ? 'الكمية المراد إضافتها *' : 'Quantité à ajouter *'}</label>
+                    <input type="number" id="quick-restock-qty" class="form-input" min="1" step="1" value="100" style="padding: 0.4rem 0.6rem; font-size: 0.85rem; background-color: white;">
+                </div>
+                <div class="form-group" style="margin-bottom: 0;">
+                    <label>${isAr ? 'التخفيض (%)' : 'Remise (%)'}</label>
+                    <input type="number" id="quick-restock-discount" class="form-input" min="0" max="100" placeholder="0" style="padding: 0.4rem 0.6rem; font-size: 0.85rem; background-color: white;">
+                </div>
+            </div>
+        `,
         showCancelButton: true,
-        confirmButtonText: isAr ? 'إضافة' : 'Ajouter',
+        confirmButtonText: isAr ? 'توريد' : 'Approvisionner',
         cancelButtonText: isAr ? 'إلغاء' : 'Annuler',
         confirmButtonColor: '#EF4444',
-        inputValidator: (value) => {
-            if (!value || parseInt(value) <= 0) {
-                return isAr ? 'يرجى إدخال كمية موجبة' : 'Veuillez saisir une quantité positive';
+        cancelButtonColor: '#64748B',
+        preConfirm: () => {
+            const quantity = parseInt(document.getElementById('quick-restock-qty').value || 0);
+            const discount = parseFloat(document.getElementById('quick-restock-discount').value || 0);
+
+            if (quantity <= 0) {
+                Swal.showValidationMessage(isAr ? 'يرجى إدخال كمية أكبر من 0' : 'Veuillez saisir une quantité supérieure à 0');
+                return false;
             }
+
+            return { quantity, discount };
         },
         customClass: { popup: 'swal2-popup-custom' }
     }).then(async (result) => {
         if (result.isConfirmed) {
             Swal.fire({ title: isAr ? 'جاري تحديث المخزون...' : 'Mise à jour du stock...', didOpen: () => Swal.showLoading(), allowOutsideClick: false });
             
-            const addedQty = parseInt(result.value);
-            const newQty = item.quantity + addedQty;
+            const { quantity, discount } = result.value;
+            const newQty = item.quantity + quantity;
 
             try {
                 const { error: stockErr } = await supabase.from('stock').update({ quantity: newQty }).eq('id', id);
@@ -2060,7 +2078,8 @@ async function triggerQuickRestock(id) {
                     operator: item.operator,
                     product_type: item.product_type,
                     product_name: item.product_name,
-                    quantity: addedQty,
+                    quantity: quantity,
+                    discount: discount,
                     vendor: '-- Central Admin Stock --',
                     notes: 'Quick Restock / توريد سريع'
                 };
