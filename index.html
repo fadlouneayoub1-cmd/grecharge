@@ -1,0 +1,666 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Recharge & SIM Manager - Système de gestion et de vente</title>
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <!-- Global CSS stylesheet -->
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <!-- 1. LOGIN SCREEN -->
+    <div id="login-screen" class="login-container">
+        <div class="login-card">
+            <div class="login-logo">
+                <!-- Layers Icon -->
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M6.429 9.75L2.25 12l4.179 2.25m11.142 0L21.75 12l-4.179-2.25M12 5.75L6.429 8.75 12 11.75l5.571-3L12 5.75zm0 12.5l-5.571-3 5.571-3 5.571 3-5.571 3z" />
+                </svg>
+            </div>
+            <div class="login-header">
+                <h2>Recharge & SIM Manager</h2>
+                <p>Système de gestion et de vente de recharges</p>
+            </div>
+            <form id="login-form">
+                <div class="form-group">
+                    <label for="login-email">Adresse E-mail</label>
+                    <input type="email" id="login-email" class="form-input" placeholder="employee@recharge.com" required value="admin@telecom.com">
+                </div>
+                <div class="form-group">
+                    <label for="login-password">Mot de passe</label>
+                    <input type="password" id="login-password" class="form-input" placeholder="••••••" required value="admin123">
+                </div>
+                <button type="submit" class="btn btn-primary" style="width: 100%; padding: 0.8rem; font-size: 1rem; border-radius: var(--radius-md); background-color: #8B5CF6;">Se connecter</button>
+            </form>
+            <div class="login-footer">
+                by Ayoub
+            </div>
+        </div>
+    </div>
+
+    <!-- 2. DASHBOARD SHELL LAYOUT -->
+    <div id="app-shell" class="dashboard-wrapper hidden">
+        
+        <!-- Sidebar Navigation -->
+        <aside id="sidebar-nav" class="sidebar">
+            <div class="sidebar-logo">
+                <!-- Stacked Layers Icon -->
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M6.429 9.75L2.25 12l4.179 2.25m11.142 0L21.75 12l-4.179-2.25M12 5.75L6.429 8.75 12 11.75l5.571-3L12 5.75zm0 12.5l-5.571-3 5.571-3 5.571 3-5.571 3z" />
+                </svg>
+                <span data-i18n="app_title">Recharge & SIM Manager</span>
+                <span class="online-dot" data-i18n="online">En ligne</span>
+            </div>
+            
+            <ul class="sidebar-menu">
+                <li>
+                    <a data-target="dashboard" class="sidebar-link active">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6A2.25 2.25 0 016 3.75h2.25A2.25 2.25 0 0110.5 6v2.25a2.25 2.25 0 01-2.25 2.25H6a2.25 2.25 0 01-2.25-2.25V6zM3.75 15.75A2.25 2.25 0 016 13.5h2.25a2.25 2.25 0 012.25 2.25V18a2.25 2.25 0 01-2.25 2.25H6A2.25 2.25 0 013.75 18v-2.25zM13.5 6a2.25 2.25 0 012.25-2.25H18A2.25 2.25 0 0120.25 6v2.25A2.25 2.25 0 0118 10.5h-2.25a2.25 2.25 0 01-2.25-2.25V6zM13.5 15.75a2.25 2.25 0 012.25-2.25H18a2.25 2.25 0 012.25 2.25V18A2.25 2.25 0 0118 20.25h-2.25A2.25 2.25 0 0113.5 18v-2.25z" />
+                        </svg>
+                        <span data-i18n="dashboard">Tableau de bord</span>
+                    </a>
+                </li>
+                <li>
+                    <a data-target="clients" class="sidebar-link">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M18 18.72a9.094 9.094 0 003.741-.479 3 3 0 00-4.682-2.72m.94 3.198l.001.031c0 .225-.012.447-.037.666A11.944 11.944 0 0112 21c-2.17 0-4.207-.576-5.963-1.584A6.062 6.062 0 016 18.719m12 0a5.971 5.971 0 00-.941-3.197m0 0A5.995 5.995 0 0012 12.75a5.995 5.995 0 00-5.058 2.772m0 0a3 3 0 00-4.681 2.72 8.986 8.986 0 003.74.477m.94-3.197a5.971 5.971 0 00-.94 3.197M15 6.75a3 3 0 11-6 0 3 3 0 016 0zm6 3a2.25 2.25 0 11-4.5 0 2.25 2.25 0 014.5 0zm-13.5 0a2.25 2.25 0 11-4.5 0 2.25 2.25 0 014.5 0z" />
+                        </svg>
+                        <span data-i18n="clients">Clients</span>
+                    </a>
+                </li>
+                <li>
+                    <a data-target="ventes" class="sidebar-link">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v12m-3-2.818l.214.122a6.709 6.709 0 003.479.855c1.615 0 3.22-.4 3.22-1.905 0-1.265-1.127-1.637-2.617-2l-2.756-.671L8.12 9.171c-.707-.565-1.12-1.39-1.12-2.307 0-1.893 2.066-2.618 4.316-2.618 1.157 0 2.285.218 3.003.524l.204.086m-3-1.448v1.448M12 18v1.448" />
+                        </svg>
+                        <span data-i18n="ventes">Ventes</span>
+                    </a>
+                </li>
+                <li>
+                    <a data-target="credits" class="sidebar-link">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m0 12.75h7.5m-7.5 3H12M10.5 2.25H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z" />
+                        </svg>
+                        <span data-i18n="credits">Crédits Clients</span>
+                    </a>
+                </li>
+                <li>
+                    <a data-target="expenses" class="sidebar-link">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 18.75a60.07 60.07 0 0115.797 2.101c.727.198 1.453-.342 1.453-1.096V18.75M3.75 4.5h16.5m-18 0a2.25 2.25 0 00-2.25 2.25v10.5a2.25 2.25 0 002.25 2.25h16.5a2.25 2.25 0 002.25-2.25V6.75A2.25 2.25 0 0019.5 4.5h-18zm2.485 5.625l1.5 1.5a.75.75 0 001.06 0l3-3a.75.75 0 10-1.06-1.06l-2.47 2.47-1.13-1.13a.75.75 0 10-1.06 1.06zm7.5 1.125h3.75m-3.75 3h3.75" />
+                        </svg>
+                        <span data-i18n="expenses">Frais / Caisse</span>
+                    </a>
+                </li>
+                <li>
+                    <a data-target="stock" class="sidebar-link">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M20.25 7.5l-.625 10.632a2.25 2.25 0 01-2.247 2.118H6.622a2.25 2.25 0 01-2.247-2.118L3.75 7.5M10 11.25h4M3.375 7.5h17.25c.621 0 1.125-.504 1.125-1.125v-1.5c0-.621-.504-1.125-1.125-1.125H3.375c-.621 0-1.125.504-1.125 1.125v1.5c0 .621.504 1.125 1.125 1.125z" />
+                        </svg>
+                        <span data-i18n="stock">Stock / Articles</span>
+                    </a>
+                </li>
+                <li>
+                    <a data-target="configuration" class="sidebar-link">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M9.594 3.94c.09-.542.56-.94 1.11-.94h2.593c.55 0 1.02.398 1.11.94l.213 1.281c.063.374.313.686.645.87.074.04.147.083.22.127.324.196.72.257 1.075.124l1.217-.456a1.125 1.125 0 011.37.49l1.296 2.247a1.125 1.125 0 01-.26 1.43l-1.003.828c-.293.241-.438.613-.43.992a7.723 7.723 0 010 .255c-.008.378.137.75.43.991l1.004.827c.424.35.534.954.26 1.43l-1.298 2.247a1.125 1.125 0 01-1.369.491l-1.217-.456c-.355-.133-.75-.072-1.076.124a6.57 6.57 0 01-.22.128c-.331.183-.581.495-.644.869l-.213 1.28c-.09.543-.56.941-1.11.941h-2.594c-.55 0-1.02-.398-1.11-.94l-.213-1.281c-.062-.374-.312-.686-.644-.87a6.52 6.52 0 01-.22-.127c-.325-.196-.72-.257-1.076-.124l-1.217.456a1.125 1.125 0 01-1.369-.49l-1.297-2.247a1.125 1.125 0 01.26-1.43l1.004-.827c.292-.24.437-.613.43-.992a6.932 6.932 0 010-.255c.007-.378-.138-.75-.43-.99l-1.004-.828a1.125 1.125 0 01-.26-1.43l1.297-2.247a1.125 1.125 0 011.37-.491l1.216.456c.356.133.751.072 1.076-.124.072-.044.146-.087.22-.128.332-.183.582-.495.645-.869l.214-1.28z" />
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                        </svg>
+                        <span data-i18n="configuration">Configuration</span>
+                    </a>
+                </li>
+            </ul>
+            
+            <div class="sidebar-footer">
+                v1.2.0 • Supabase Database
+            </div>
+        </aside>
+        
+        <!-- Main Panel Content -->
+        <main class="main-content">
+            
+            <!-- Navbar Header -->
+            <header class="topbar">
+                <button id="menu-toggle" class="hamburger">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" />
+                    </svg>
+                </button>
+                
+                <div id="topbar-title" style="font-weight: 600; font-size: 1.1rem; letter-spacing: 0.5px;" data-i18n="dashboard">Tableau de bord</div>
+                
+                <div class="topbar-right">
+                    <div class="lang-switch">
+                        <button class="lang-btn active">FR</button>
+                        <button class="lang-btn">AR</button>
+                    </div>
+                    
+                    <div class="user-profile">
+                        <span class="user-name">Super Admin Telecom</span>
+                        <span class="badge badge-admin" data-i18n="admin_role">ADMIN</span>
+                    </div>
+                    
+                    <button id="logout-btn" class="logout-btn" title="Se déconnecter" data-i18n-title="logout">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0013.5 3h-6a2.25 2.25 0 00-2.25 2.25v13.5A2.25 2.25 0 007.5 21h6a2.25 2.25 0 002.25-2.25V15M12 9l-3 3m0 0l3 3m-3-3h12.75" />
+                        </svg>
+                    </button>
+                </div>
+            </header>
+            
+            <!-- Screen Containers -->
+            <div id="page-container" class="page-container">
+                
+                <!-- SQL Helper Banner for initial setup (hidden once tables exist) -->
+                <div id="sql-helper-banner" class="sql-helper-banner hidden">
+                    <div class="sql-helper-info">
+                        <h3>Configuration de Supabase requise</h3>
+                        <p>Les tables de base de données n'ont pas encore été créées sur votre compte Supabase. Cliquez ci-contre pour obtenir le script SQL à exécuter.</p>
+                    </div>
+                    <button id="btn-show-sql" class="btn btn-secondary btn-sm" style="color: #4F46E5; border-color: white;">Voir le Script SQL</button>
+                </div>
+                
+                <!-- ================= 1. DASHBOARD VIEW ================= -->
+                <section id="view-dashboard" class="view-section">
+                    <div class="page-header flex justify-between align-center">
+                        <div>
+                            <h1 data-i18n="dashboard">Tableau de bord</h1>
+                            <p data-i18n="dashboard_subtitle">Aperçu de l'activité commerciale en temps réel</p>
+                        </div>
+                        <div class="header-actions">
+                            <button class="btn btn-secondary" id="dash-btn-scan-qr">
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" style="width:16px;height:16px;"><path stroke-linecap="round" stroke-linejoin="round" d="M3.75 4.875c0-.621.504-1.125 1.125-1.125h4.5c.621 0 1.125.504 1.125 1.125v4.5c0 .621-.504 1.125-1.125 1.125h-4.5A1.125 1.125 0 013.75 9.375v-4.5zM3.75 14.625c0-.621.504-1.125 1.125-1.125h4.5c.621 0 1.125.504 1.125 1.125v4.5c0 .621-.504 1.125-1.125 1.125h-4.5a1.125 1.125 0 01-1.125-1.125v-4.5zM13.5 4.875c0-.621.504-1.125 1.125-1.125h4.5c.621 0 1.125.504 1.125 1.125v4.5c0 .621-.504 1.125-1.125 1.125h-4.5A1.125 1.125 0 0113.5 9.375v-4.5zM3.75 12h.007v.008H3.75V12zm0 8.25h.007v.008H3.75v-.008zm16.5-12h.007v.008h-.007V8.25zm0 12h.007v.008h-.007v-.008zm-3-3h.008v.008h-.008v-.008zm-3 3h.007v.008h-.007v-.008zm3-3h.008v.008h-.008v-.008zm-3-3h.007v.008h-.007v-.008zm-3 3h.008v.008h-.008v-.008zm-3-3h.007v.008h-.007v-.008z" /></svg>
+                                <span data-i18n="scan_qr">Scanner QR</span>
+                            </button>
+                            <button class="btn btn-primary btn-new-sale-trigger" style="background-color: #EF4444;">
+                                <span data-i18n="new_sale">+ Nouvelle Vente</span>
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <!-- Stats Grid -->
+                    <div class="stats-grid">
+                        <div class="stat-card">
+                            <div class="stat-icon stat-icon-purple">
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" style="width:24px;height:24px;"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6v12m-3-2.818l.214.122a6.709 6.709 0 003.479.855c1.615 0 3.22-.4 3.22-1.905 0-1.265-1.127-1.637-2.617-2l-2.756-.671L8.12 9.171c-.707-.565-1.12-1.39-1.12-2.307 0-1.893 2.066-2.618 4.316-2.618 1.157 0 2.285.218 3.003.524l.204.086m-3-1.448v1.448M12 18v1.448" /></svg>
+                            </div>
+                            <div class="stat-info">
+                                <div class="stat-label" data-i18n="recharges_val">Recharges (Valeur)</div>
+                                <div class="stat-value" id="stat-recharge-val">0.00 DH</div>
+                            </div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-icon stat-icon-orange">
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" style="width:24px;height:24px;"><path stroke-linecap="round" stroke-linejoin="round" d="M2.25 18.75a60.07 60.07 0 0115.797 2.101c.727.198 1.453-.342 1.453-1.096V18.75M3.75 4.5h16.5m-18 0a2.25 2.25 0 00-2.25 2.25v10.5a2.25 2.25 0 002.25 2.25h16.5a2.25 2.25 0 002.25-2.25V6.75A2.25 2.25 0 0019.5 4.5h-18zm2.485 5.625l1.5 1.5a.75.75 0 001.06 0l3-3a.75.75 0 10-1.06-1.06l-2.47 2.47-1.13-1.13a.75.75 0 10-1.06 1.06zm7.5 1.125h3.75m-3.75 3h3.75" /></svg>
+                            </div>
+                            <div class="stat-info">
+                                <div class="stat-label" data-i18n="sim_val">Ventes SIM (Valeur)</div>
+                                <div class="stat-value" id="stat-sim-val">0.00 DH</div>
+                            </div>
+                        </div>
+                        <!-- Profit Card -->
+                        <div class="stat-card">
+                            <div class="stat-icon" style="background-color: var(--success-light); color: var(--success);">
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" style="width:24px;height:24px;"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6v12m-3-2.818l.214.122a6.709 6.709 0 003.479.855c1.615 0 3.22-.4 3.22-1.905 0-1.265-1.127-1.637-2.617-2l-2.756-.671L8.12 9.171c-.707-.565-1.12-1.39-1.12-2.307 0-1.893 2.066-2.618 4.316-2.618 1.157 0 2.285.218 3.003.524l.204.086m-3-1.448v1.448M12 18v1.448" /></svg>
+                            </div>
+                            <div class="stat-info">
+                                <div class="stat-label" data-i18n="profit_val">Bénéfice Net (Arbah)</div>
+                                <div class="stat-value" id="stat-profit-val" style="color: var(--success);">0.00 DH</div>
+                            </div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-icon stat-icon-red">
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" style="width:24px;height:24px;"><path stroke-linecap="round" stroke-linejoin="round" d="M20.25 7.5l-.625 10.632a2.25 2.25 0 01-2.247 2.118H6.622a2.25 2.25 0 01-2.247-2.118L3.75 7.5M10 11.25h4M3.375 7.5h17.25c.621 0 1.125-.504 1.125-1.125v-1.5c0-.621-.504-1.125-1.125-1.125H3.375c-.621 0-1.125.504-1.125 1.125v1.5c0 .621.504 1.125 1.125 1.125z" /></svg>
+                            </div>
+                            <div class="stat-info">
+                                <div class="stat-label" data-i18n="sim_volume">Volume SIM (PCS)</div>
+                                <div class="stat-value" id="stat-sim-volume">0 Pcs</div>
+                            </div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-icon stat-icon-purple" style="color: var(--inwi); background-color: var(--inwi-light);">
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" style="width:24px;height:24px;"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" /></svg>
+                            </div>
+                            <div class="stat-info">
+                                <div class="stat-label" data-i18n="credits_val">Crédits Clients (Dettes)</div>
+                                <div class="stat-value" id="stat-credits-val" style="color: var(--inwi);">0.00 DH</div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Charts Grid -->
+                    <div class="charts-grid">
+                        <div class="chart-card">
+                            <div class="chart-card-title">Évolution journalière des ventes (Net & Remises)</div>
+                            <div class="chart-container">
+                                <canvas id="chart-sales-trend"></canvas>
+                            </div>
+                        </div>
+                        <div class="chart-card">
+                            <div class="chart-card-title">Répartition des ventes par Opérateur</div>
+                            <div class="chart-container">
+                                <canvas id="chart-operator-distribution"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Recent Sales Table -->
+                    <div class="table-card">
+                        <div class="table-header">
+                            <div class="table-title" data-i18n="recent_sales_title">Dernières ventes enregistrées</div>
+                            <button class="btn btn-secondary btn-sm" id="btn-view-all-sales" data-i18n="view_all">Voir tout</button>
+                        </div>
+                        <div class="table-wrapper">
+                            <table class="data-table">
+                                <thead>
+                                    <tr>
+                                        <th data-i18n="date">Date</th>
+                                        <th data-i18n="clients">Client</th>
+                                        <th data-i18n="designation">Article</th>
+                                        <th data-i18n="operator">Opérateur</th>
+                                        <th data-i18n="quantity">Quantité</th>
+                                        <th data-i18n="discount" class="text-right">Remise</th>
+                                        <th data-i18n="net_to_pay" class="text-right">Net à payer</th>
+                                        <th data-i18n="payment">Paiement</th>
+                                        <th data-i18n="actions">Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="recent-sales-tbody">
+                                    <tr>
+                                        <td colspan="10" style="text-align: center; color: var(--text-light); padding: 2rem;">Chargement des données...</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </section>
+                
+                <!-- ================= 2. CLIENTS VIEW ================= -->
+                <section id="view-clients" class="view-section hidden">
+                    <div class="page-header flex justify-between align-center">
+                        <div>
+                            <h1 data-i18n="clients">Clients</h1>
+                            <p data-i18n="clients_subtitle">Ajouter, rechercher et gérer le portefeuille client</p>
+                        </div>
+                        <div class="header-actions">
+                            <button class="btn btn-secondary" id="btn-export-clients">
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" style="width:16px;height:16px;"><path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3" /></svg>
+                                <span data-i18n="export_clients">Exporter Clients</span>
+                            </button>
+                            <button class="btn btn-primary" id="btn-add-client-trigger" style="background-color: #8B5CF6;">
+                                <span data-i18n="new_client">+ Nouveau Client</span>
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <!-- Filters bar -->
+                    <div class="filters-bar">
+                        <div class="filter-search">
+                            <input type="text" id="clients-search" class="form-input" placeholder="Rechercher par nom, téléphone, code dealer..." data-i18n-placeholder="search_client_placeholder">
+                        </div>
+                    </div>
+                    
+                    <!-- Table client list -->
+                    <div class="table-card">
+                        <div class="table-wrapper">
+                            <table class="data-table">
+                                <thead>
+                                    <tr>
+                                        <th data-i18n="client_name">Nom Complet</th>
+                                        <th data-i18n="phone">Téléphone</th>
+                                        <th data-i18n="dealer_num">Numéro Dealer</th>
+                                        <th data-i18n="activity">Activité</th>
+                                        <th data-i18n="address">Adresse</th>
+                                        <th data-i18n="qr_code">QR Code</th>
+                                        <th data-i18n="notes">Notes</th>
+                                        <th style="width:100px;" data-i18n="actions">Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="clients-tbody">
+                                    <!-- Populated by JS -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </section>
+                
+                <!-- ================= 3. VENTES VIEW ================= -->
+                <section id="view-ventes" class="view-section hidden">
+                    <div class="page-header flex justify-between align-center">
+                        <div>
+                            <h1 data-i18n="ventes">Ventes</h1>
+                            <p data-i18n="ventes_subtitle">Liste globale de toutes les transactions et facturations</p>
+                        </div>
+                        <div class="header-actions">
+                            <button class="btn btn-secondary" id="btn-export-sales">
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" style="width:16px;height:16px;"><path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3" /></svg>
+                                <span data-i18n="export_csv">Exporter CSV</span>
+                            </button>
+                            <button class="btn btn-primary btn-new-sale-trigger" style="background-color: #EF4444;">
+                                <span data-i18n="new_sale">+ Nouvelle Vente</span>
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <!-- Filters bar -->
+                    <div class="filters-bar">
+                        <div class="filter-search">
+                            <input type="text" id="sales-search" class="form-input" placeholder="Rechercher par client, article, notes..." data-i18n-placeholder="search_sales_placeholder">
+                        </div>
+                        <div class="filter-item">
+                            <select id="sales-filter-operator" class="form-select">
+                                <option value="" data-i18n="all_operators">Tous les opérateurs</option>
+                                <option value="Maroc Telecom">Maroc Telecom</option>
+                                <option value="Orange">Orange</option>
+                                <option value="Inwi">Inwi</option>
+                            </select>
+                        </div>
+                        <div class="filter-item">
+                            <select id="sales-filter-status" class="form-select">
+                                <option value="" data-i18n="all_payments">Tous les paiements</option>
+                                <option value="Payé" data-i18n="status_paid">Payé</option>
+                                <option value="En Crédit" data-i18n="status_credit">En Crédit</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <!-- Table Sales -->
+                    <div class="table-card">
+                        <div class="table-wrapper">
+                            <table class="data-table">
+                                <thead>
+                                    <tr>
+                                        <th data-i18n="date">Date</th>
+                                        <th data-i18n="clients">Client</th>
+                                        <th data-i18n="designation">Article</th>
+                                        <th data-i18n="operator">Opérateur</th>
+                                        <th data-i18n="quantity">Quantité</th>
+                                        <th class="text-right" data-i18n="unit_price_short">Unit. (DH)</th>
+                                        <th class="text-right" data-i18n="discount">Remise</th>
+                                        <th class="text-right" data-i18n="net_to_pay">Net à payer</th>
+                                        <th data-i18n="payment">Paiement</th>
+                                        <th data-i18n="actions">Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="sales-tbody">
+                                    <!-- Populated by JS -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </section>
+                
+                <!-- ================= 4. CREDITS CLIENTS VIEW ================= -->
+                <section id="view-credits" class="view-section hidden">
+                    <div class="page-header flex justify-between align-center">
+                        <div>
+                            <h1 data-i18n="credits">Crédits Clients</h1>
+                            <p data-i18n="credits_subtitle">Suivi et règlements des ventes à crédit</p>
+                        </div>
+                    </div>
+                    
+                    <!-- Credit Stats Grid -->
+                    <div class="stats-grid">
+                        <div class="stat-card">
+                            <div class="stat-icon stat-icon-purple" style="background-color: var(--maroc-telecom-light); color: var(--maroc-telecom)">
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" style="width:24px;height:24px;"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6v12m-3-2.818l.214.122a6.709 6.709 0 003.479.855c1.615 0 3.22-.4 3.22-1.905 0-1.265-1.127-1.637-2.617-2l-2.756-.671L8.12 9.171c-.707-.565-1.12-1.39-1.12-2.307 0-1.893 2.066-2.618 4.316-2.618 1.157 0 2.285.218 3.003.524l.204.086m-3-1.448v1.448M12 18v1.448" /></svg>
+                            </div>
+                            <div class="stat-info">
+                                <div class="stat-label" data-i18n="total_credit_sales">Total Ventes Crédit</div>
+                                <div class="stat-value" id="credit-stat-total">0.00 DH</div>
+                            </div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-icon stat-icon-orange" style="background-color: var(--success-light); color: var(--success)">
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" style="width:24px;height:24px;"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                            </div>
+                            <div class="stat-info">
+                                <div class="stat-label" data-i18n="total_settlements">Total Règlements</div>
+                                <div class="stat-value" id="credit-stat-paid">0.00 DH</div>
+                            </div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-icon stat-icon-red" style="background-color: var(--warning-light); color: var(--warning)">
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" style="width:24px;height:24px;"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" /></svg>
+                            </div>
+                            <div class="stat-info">
+                                <div class="stat-label" data-i18n="remaining_credit">Crédit Restant (Dette)</div>
+                                <div class="stat-value" id="credit-stat-remaining">0.00 DH</div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Filters bar -->
+                    <div class="filters-bar">
+                        <div class="filter-search">
+                            <input type="text" id="credits-search" class="form-input" placeholder="Rechercher par client..." data-i18n-placeholder="search_client_placeholder">
+                        </div>
+                        <div class="filter-item">
+                            <select id="credits-filter-status" class="form-select">
+                                <option value="" data-i18n="all_credits">Tous les crédits</option>
+                                <option value="Non payé" data-i18n="status_unpaid">Non payé</option>
+                                <option value="Partiellement payé" data-i18n="status_partial">Partiellement payé</option>
+                                <option value="Payé" data-i18n="status_paid">Payé</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <!-- Credit table -->
+                    <div class="table-card">
+                        <div class="table-wrapper">
+                            <table class="data-table">
+                                <thead>
+                                    <tr>
+                                        <th data-i18n="date_saved">Date Enreg.</th>
+                                        <th data-i18n="clients">Client</th>
+                                        <th data-i18n="original_article">Article Originel</th>
+                                        <th class="text-right" data-i18n="initial_debt">Dette Initiale (DH)</th>
+                                        <th class="text-right" data-i18n="amount_paid">Montant Payé (DH)</th>
+                                        <th class="text-right" data-i18n="remaining_amount">Reste Dû (DH)</th>
+                                        <th data-i18n="payment">Paiement</th>
+                                        <th data-i18n="actions">Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="credits-tbody">
+                                    <!-- Populated by JS -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </section>
+                
+                <!-- ================= 5. FRAIS / CAISSE VIEW ================= -->
+                <section id="view-expenses" class="view-section hidden">
+                    <div class="page-header flex justify-between align-center">
+                        <div>
+                            <h1 data-i18n="expenses">Frais & Caisse</h1>
+                            <p data-i18n="expenses_subtitle">Suivi de la caisse et enregistrement des dépenses de l'activité</p>
+                        </div>
+                        <div class="header-actions">
+                            <button class="btn btn-primary" id="btn-add-expense-trigger" style="background-color: #FF6600;">
+                                <span data-i18n="new_expense">+ Enregistrer un Frais</span>
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <!-- Cash stats grid -->
+                    <div class="stats-grid" style="grid-template-columns: repeat(2, 1fr);">
+                        <div class="stat-card">
+                            <div class="stat-icon stat-icon-purple" style="background-color: var(--success-light); color: var(--success)">
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" style="width:24px;height:24px;"><path stroke-linecap="round" stroke-linejoin="round" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /><path stroke-linecap="round" stroke-linejoin="round" d="M9 10a1 1 0 011-1h4a1 1 0 011 1v4a1 1 0 01-1 1h-4a1 1 0 01-1-1v-4z" /></svg>
+                            </div>
+                            <div class="stat-info">
+                                <div class="stat-label" data-i18n="caisse_net">Fonds de Caisse Net</div>
+                                <div class="stat-value" id="caisse-stat-total" style="color: var(--success);">0.00 DH</div>
+                            </div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-icon stat-icon-red">
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" style="width:24px;height:24px;"><path stroke-linecap="round" stroke-linejoin="round" d="M9.75 9.75l4.5 4.5m0-4.5l-4.5 4.5M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                            </div>
+                            <div class="stat-info">
+                                <div class="stat-label" data-i18n="total_expenses">Total Dépenses / Frais</div>
+                                <div class="stat-value" id="caisse-stat-expenses" style="color: var(--danger);">0.00 DH</div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Expense Table -->
+                    <div class="table-card">
+                        <div class="table-header">
+                            <div class="table-title" data-i18n="expense_registry">Registre des dépenses</div>
+                        </div>
+                        <div class="table-wrapper">
+                            <table class="data-table">
+                                <thead>
+                                    <tr>
+                                        <th data-i18n="date">Date</th>
+                                        <th data-i18n="title">Titre</th>
+                                        <th data-i18n="category">Catégorie</th>
+                                        <th class="text-right" data-i18n="amount_dh">Montant (DH)</th>
+                                        <th data-i18n="notes">Notes</th>
+                                        <th data-i18n="actions">Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="expenses-tbody">
+                                    <!-- Populated by JS -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </section>
+                
+                <!-- ================= 6. STOCK / ARTICLES VIEW ================= -->
+                <section id="view-stock" class="view-section hidden">
+                    <div class="page-header flex justify-between align-center">
+                        <div>
+                            <h1 data-i18n="stock">Stock & Articles</h1>
+                            <p data-i18n="stock_subtitle">Gérer les niveaux d'inventaire de recharges et de cartes SIM</p>
+                        </div>
+                        <div class="header-actions flex gap-2">
+                            <button class="btn" id="btn-delete-selected-stock" style="background-color: var(--danger); color: white; border: none; display: none;">
+                                <span data-i18n="empty_stock">🗑️ Vider la Sélection</span>
+                            </button>
+                            <button class="btn btn-primary" id="btn-add-stock-trigger" style="background-color: #EF4444;">
+                                <span data-i18n="new_stock_invoice">+ Nouvel Approvisionnement (Facture)</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Operator Filter Tabs -->
+                    <div class="flex gap-2" style="margin-bottom: 1.25rem;">
+                        <button class="btn btn-secondary" id="stock-filter-mt" style="border: 2px solid var(--maroc-telecom); color: var(--maroc-telecom); background-color: var(--maroc-telecom-light); font-weight: 700;">
+                            Maroc Telecom
+                        </button>
+                        <button class="btn btn-secondary" id="stock-filter-orange" style="border: 1px solid var(--border); color: var(--text-muted); font-weight: 500;">
+                            Orange
+                        </button>
+                        <button class="btn btn-secondary" id="stock-filter-inwi" style="border: 1px solid var(--border); color: var(--text-muted); font-weight: 500;">
+                            Inwi
+                        </button>
+                    </div>
+                    
+                    <!-- Stock table -->
+                    <div class="table-card">
+                        <div class="table-wrapper">
+                            <table class="data-table">
+                                <thead>
+                                    <tr>
+                                        <th style="width: 40px; text-align: center;"><input type="checkbox" id="stock-select-all"></th>
+                                        <th data-i18n="operator">Opérateur</th>
+                                        <th data-i18n="product_type">Type d'Article</th>
+                                        <th data-i18n="designation">Désignation</th>
+                                        <th class="text-right" data-i18n="stock_qty">Quantité en Stock</th>
+                                        <th class="text-right" data-i18n="alert_threshold">Seuil Alerte</th>
+                                        <th data-i18n="status">Statut</th>
+                                        <th data-i18n="actions">Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="stock-tbody">
+                                    <!-- Populated by JS -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </section>
+                
+                <!-- ================= 7. CONFIGURATION VIEW ================= -->
+                <section id="view-configuration" class="view-section hidden">
+                    <div class="page-header">
+                        <h1 data-i18n="sys_config_title">Configuration Système</h1>
+                        <p data-i18n="sys_config_subtitle">Paramètres de l'application et options de base de données</p>
+                    </div>
+                    
+                    <div class="charts-grid" style="grid-template-columns: 1fr 1fr;">
+                        <div class="chart-card" style="height: auto;">
+                            <div class="chart-card-title" data-i18n="supabase_conn_title">Connexion Supabase active</div>
+                            <div style="font-size: 0.85rem; display: flex; flex-direction: column; gap: 0.75rem;">
+                                <div>
+                                    <strong>API URL :</strong>
+                                    <div style="background-color: var(--bg-main); padding: 0.5rem; border-radius: var(--radius-sm); border: 1px solid var(--border); font-family: monospace; word-break: break-all; margin-top: 0.25rem;">https://apnpufhbshkgaeebfitn.supabase.co</div>
+                                </div>
+                                <div>
+                                    <strong>Publishable Key :</strong>
+                                    <div style="background-color: var(--bg-main); padding: 0.5rem; border-radius: var(--radius-sm); border: 1px solid var(--border); font-family: monospace; word-break: break-all; margin-top: 0.25rem;">sb_publishable_x_BK6tD0fv4P1mJrZs...</div>
+                                </div>
+                                <div style="margin-top: 1rem; padding-top: 1rem; border-top: 1px solid var(--border); display: flex; gap: 0.5rem;">
+                                    <button class="btn btn-secondary btn-sm" id="btn-seed-data" style="flex:1;">
+                                        <span data-i18n="create_demo_data">Créer données Demo</span>
+                                    </button>
+                                    <button class="btn btn-danger btn-sm" id="btn-clear-db" style="flex:1;">
+                                        <span data-i18n="clear_database">Vider Base de données</span>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="chart-card" style="height: auto;">
+                            <div class="chart-card-title" data-i18n="tarifs_comm_title">Tarifs et Commission par défaut</div>
+                            <div style="font-size: 0.85rem; display: flex; flex-direction: column; gap: 1rem;">
+                                <div style="display:flex; justify-content: space-between; border-bottom: 1px solid var(--border); padding-bottom: 0.5rem;">
+                                    <span style="color: var(--maroc-telecom); font-weight: 600;">Maroc Telecom</span>
+                                    <span>Recharge: Comm. 4.5% | SIM: 15.00 DH</span>
+                                </div>
+                                <div style="display:flex; justify-content: space-between; border-bottom: 1px solid var(--border); padding-bottom: 0.5rem;">
+                                    <span style="color: var(--orange); font-weight: 600;">Orange</span>
+                                    <span>Recharge: Comm. 5.0% | SIM: 20.00 DH</span>
+                                </div>
+                                <div style="display:flex; justify-content: space-between; border-bottom: 1px solid var(--border); padding-bottom: 0.5rem;">
+                                    <span style="color: var(--inwi); font-weight: 600;">Inwi</span>
+                                    <span>Recharge: Comm. 6.0% | SIM: 18.00 DH</span>
+                                </div>
+                                <div style="background-color: var(--primary-light); color: var(--primary-hover); padding: 0.75rem; border-radius: var(--radius-md); font-size: 0.8rem;">
+                                    💡 Ces paramètres servent à pré-remplir les formulaires de vente et calculer vos marges lors de l'enregistrement de transactions.
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+                
+            </div>
+        </main>
+    </div>
+
+    <!-- Modals and CDN Scripts -->
+    
+    <!-- Supabase JS Library -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    
+    <!-- ChartJS for widgets -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
+    <!-- SweetAlert2 for forms & modals -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    
+    <!-- Main JS Application Controller -->
+    <script src="app.js"></script>
+</body>
+</html>
