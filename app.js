@@ -1764,6 +1764,7 @@ function triggerNewSaleModal(preselectedClientId = null) {
                     operator: item.operator,
                     quantity: item.quantity,
                     unit_price: item.unit_price,
+                    discount_pct: item.discount_pct || 0,
                     discount: item.discount_amount || 0,
                     total: item.total
                 }));
@@ -2735,10 +2736,12 @@ function shareInvoiceWhatsApp(clientPhone, clientName, invoiceRef, date, items, 
         message += `• ${item.product_name} (${item.operator})\n`;
         message += `  ${item.quantity} x ${item.unit_price.toFixed(2)} DH = *${item.total.toFixed(2)} DH*\n`;
         if (item.discount > 0) {
+            const itemPct = item.discount_pct || 0;
+            const formattedPct = (itemPct % 1 === 0) ? itemPct.toFixed(0) : itemPct.toFixed(1);
             if (isAr) {
-                message += `  تخفيض: -${item.discount.toFixed(2)} DH\n`;
+                message += `  تخفيض (${formattedPct}%): -${item.discount.toFixed(2)} DH\n`;
             } else {
-                message += `  Remise: -${item.discount.toFixed(2)} DH\n`;
+                message += `  Remise (${formattedPct}%): -${item.discount.toFixed(2)} DH\n`;
             }
         }
         totalGross += item.quantity * item.unit_price;
@@ -2752,10 +2755,8 @@ function shareInvoiceWhatsApp(clientPhone, clientName, invoiceRef, date, items, 
     if (discountAmount > 0) {
         if (isAr) {
             message += `المجموع الإجمالي : ${totalGross.toFixed(2)} DH\n`;
-            message += `التخفيض (${discountPct}%) : -${discountAmount.toFixed(2)} DH\n`;
         } else {
             message += `Total Brut : ${totalGross.toFixed(2)} DH\n`;
-            message += `Remise (${discountPct}%) : -${discountAmount.toFixed(2)} DH\n`;
         }
     }
     if (isAr) {
@@ -2795,14 +2796,20 @@ function viewPastInvoice(invoiceRef) {
     const sale0 = matchingSales[0];
     const client = state.clients.find(c => c.id === sale0.client_id) || { name: 'Client Inconnu', phone: '' };
     
-    const items = matchingSales.map(s => ({
-        product_name: s.product_name,
-        operator: s.operator,
-        quantity: s.quantity,
-        unit_price: parseFloat(s.unit_price || 0),
-        discount: parseFloat(s.discount || 0),
-        total: parseFloat(s.net_to_pay || 0)
-    }));
+    const items = matchingSales.map(s => {
+        const brut = parseFloat(s.total_brut || 0);
+        const disc = parseFloat(s.discount || 0);
+        const pct = brut > 0 ? (disc * 100 / brut) : 0;
+        return {
+            product_name: s.product_name,
+            operator: s.operator,
+            quantity: s.quantity,
+            unit_price: parseFloat(s.unit_price || 0),
+            discount_pct: pct,
+            discount: disc,
+            total: parseFloat(s.net_to_pay || 0)
+        };
+    });
 
     renderAndShowInvoiceModal(client, sale0.payment_status, items, invoiceRef, sale0.created_at);
 }
@@ -2817,12 +2824,14 @@ function renderAndShowInvoiceModal(client, paymentStatus, items, invoiceRef, dat
 
     let itemsHtml = '';
     items.forEach(item => {
+        const itemPct = item.discount_pct || 0;
+        const formattedPct = (itemPct % 1 === 0) ? itemPct.toFixed(0) : itemPct.toFixed(1);
         itemsHtml += `
             <div style="display: flex; justify-content: space-between; margin-bottom: 5px; font-size: 11px; font-family: 'Inter', sans-serif; flex-direction: ${isAr ? 'row-reverse' : 'row'};">
                 <div style="flex: 2; word-break: break-word; font-weight: 500; text-align: ${isAr ? 'right' : 'left'};">
                     ${escapeHTML(item.product_name)}
                     <span style="font-size: 9px; color: #555; margin-left: 4px; margin-right: 4px;">(${escapeHTML(item.operator)})</span>
-                    ${item.discount > 0 ? `<div style="font-size: 8.5px; color: #c2410c; margin-top: 1px; font-weight: normal;">${isAr ? 'تخفيض' : 'Remise'}: -${item.discount.toFixed(2)} DH</div>` : ''}
+                    ${item.discount > 0 ? `<div style="font-size: 8.5px; color: #c2410c; margin-top: 1px; font-weight: normal;">${isAr ? 'تخفيض' : 'Remise'} (${formattedPct}%): -${item.discount.toFixed(2)} DH</div>` : ''}
                 </div>
                 <div style="flex: 0.8; text-align: ${isAr ? 'left' : 'right'};">x${item.quantity}</div>
                 <div style="flex: 1.2; text-align: ${isAr ? 'left' : 'right'};">${item.unit_price.toFixed(2)}</div>
@@ -2880,11 +2889,6 @@ function renderAndShowInvoiceModal(client, paymentStatus, items, invoiceRef, dat
                     <span>${isAr ? 'المجموع الإجمالي:' : 'Total Brut:'}</span>
                     <span>${totalGross.toFixed(2)} DH</span>
                 </div>
-                ${discountAmount > 0 ? `
-                <div style="display: flex; justify-content: space-between; margin-bottom: 2px; color: #c2410c; flex-direction: ${isAr ? 'row-reverse' : 'row'};">
-                    <span>${isAr ? `التخفيض (${discountPct}%):` : `Remise (${discountPct}%):`}</span>
-                    <span>-${discountAmount.toFixed(2)} DH</span>
-                </div>` : ''}
                 <div style="display: flex; justify-content: space-between; font-weight: 800; font-size: 12.5px; margin-top: 6px; border-top: 1px dashed #000; padding-top: 6px; color: #1E1B4B; flex-direction: ${isAr ? 'row-reverse' : 'row'};">
                     <span>${isAr ? 'الصافي للأداء:' : 'NET A PAYER:'}</span>
                     <span>${totalNet.toFixed(2)} DH</span>
