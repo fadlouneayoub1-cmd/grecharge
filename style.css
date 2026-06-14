@@ -147,7 +147,7 @@ body {
     box-shadow: 0 4px 12px rgba(99, 102, 241, 0.2);
 }
 .btn-secondary {
-    background-color: white;
+    background-color: var(--bg-card);
     color: var(--text-main);
     border: 1px solid var(--border);
 }
@@ -686,7 +686,7 @@ body {
     font-weight: 600;
     font-size: 0.85rem;
     transition: all 0.2s;
-    background-color: white;
+    background-color: var(--bg-card);
 }
 .operator-pill svg {
     margin-bottom: 0.25rem;
@@ -967,4 +967,114 @@ body.rtl .charts-grid {
 }
 
 /* QR Scanner styles removed */
+
+/* ================= DARK THEME OVERRIDES ================= */
+body.dark-theme {
+    --bg-main: #0B0F19; /* Slate 950 */
+    --bg-card: #151D30; /* Slate 900 */
+    --text-main: #F8FAFC; /* Slate 50 */
+    --text-muted: #94A3B8; /* Slate 400 */
+    --text-light: #64748B; /* Slate 500 */
+    --border: #1E293B; /* Slate 800 */
+    
+    --primary-light: #1E1B4B; /* Dark indigo */
+    --primary-hover: #818CF8;
+    
+    /* Operators Custom Colors on dark theme */
+    --maroc-telecom-light: rgba(239, 68, 68, 0.15);
+    --orange-light: rgba(255, 102, 0, 0.15);
+    --inwi-light: rgba(139, 92, 246, 0.15);
+    
+    --success-light: rgba(16, 185, 129, 0.15);
+    --danger-light: rgba(239, 68, 68, 0.15);
+    --warning-light: rgba(245, 158, 11, 0.15);
+}
+
+body.dark-theme .topbar {
+    background-color: #3B0764; /* Dark purple topbar */
+    border-bottom: 1px solid #4A044E;
+}
+
+body.dark-theme .sidebar-logo {
+    background-color: #2E0854;
+}
+
+body.dark-theme .sidebar {
+    background-color: #1E1B4B !important; /* Indigo 950 */
+}
+
+body.dark-theme .stat-icon-purple {
+    background-color: #3B1C57;
+    color: #C084FC;
+}
+body.dark-theme .stat-icon-orange {
+    background-color: #4D2612;
+    color: #FB923C;
+}
+body.dark-theme .stat-icon-red {
+    background-color: #4A1A1A;
+    color: #F87171;
+}
+
+body.dark-theme .stat-info .stat-value,
+body.dark-theme .chart-card-title,
+body.dark-theme .page-header h1,
+body.dark-theme .table-title {
+    color: #C084FC !important;
+}
+
+body.dark-theme .form-input, 
+body.dark-theme .form-select, 
+body.dark-theme .form-textarea {
+    background-color: #151D30;
+    color: #F8FAFC;
+    border-color: #334155;
+}
+body.dark-theme .form-input:focus, 
+body.dark-theme .form-select:focus, 
+body.dark-theme .form-textarea:focus {
+    background-color: #0B0F19;
+    border-color: var(--primary);
+}
+
+body.dark-theme .data-table th {
+    background-color: #0F172A;
+}
+body.dark-theme .data-table tbody tr:hover td {
+    background-color: #1E293B;
+}
+
+/* SweetAlert2 Dark mode adjustments */
+body.dark-theme .swal2-popup {
+    background-color: #151D30 !important;
+    color: #F8FAFC !important;
+    border: 1px solid #334155 !important;
+}
+body.dark-theme .swal2-title,
+body.dark-theme .swal2-html-container,
+body.dark-theme .swal2-content {
+    color: #F8FAFC !important;
+}
+body.dark-theme .swal2-validation-message {
+    background-color: #1E1B4B !important;
+    color: #F9A8D4 !important;
+}
+body.dark-theme .swal2-input,
+body.dark-theme .swal2-select,
+body.dark-theme .swal2-textarea {
+    background-color: #151D30 !important;
+    color: #F8FAFC !important;
+    border-color: #334155 !important;
+}
+body.dark-theme #modal-sale-client-dropdown {
+    background: #151D30 !important;
+    border-color: #334155 !important;
+}
+body.dark-theme #modal-sale-client-dropdown div {
+    color: #F8FAFC !important;
+}
+body.dark-theme #modal-sale-client-dropdown div:hover {
+    background-color: #1E293B !important;
+}
+
 

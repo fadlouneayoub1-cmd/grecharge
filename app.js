@@ -57,6 +57,7 @@ function initApp() {
     checkAuthSession();
     setupEventListeners();
     populateCommissionInputs();
+    setupThemeToggler();
 }
 
 // Check session in localStorage
@@ -873,7 +874,7 @@ function renderStockTable() {
             ? (isAr ? 'تعبئة' : 'Recharge') 
             : (isAr ? 'شريحة' : 'SIM');
             
-        const qtyUnit = item.product_type === 'Recharge' ? 'DH' : (isAr ? 'قطعة' : 'Pcs');
+        const qtyUnit = isAr ? 'قطعة' : 'Pcs';
         const restockText = isAr ? '+ توريد' : '+ Approvisionner';
         const operatorClass = item.operator === 'Maroc Telecom' ? 'badge-mt' : (item.operator === 'Orange' ? 'badge-orange' : 'badge-inwi');
 
@@ -2464,6 +2465,36 @@ function populateCommissionInputs() {
     if (orangeSim) orangeSim.value = comms.orange_sim;
     if (inwiRecharge) inwiRecharge.value = comms.inwi_recharge;
     if (inwiSim) inwiSim.value = comms.inwi_sim;
+}
+
+function setupThemeToggler() {
+    const themeBtn = document.getElementById('theme-toggle');
+    if (!themeBtn) return;
+    
+    const sunIcon = document.getElementById('theme-icon-sun');
+    const moonIcon = document.getElementById('theme-icon-moon');
+    
+    const applyTheme = (theme) => {
+        if (theme === 'dark') {
+            document.body.classList.add('dark-theme');
+            sunIcon.classList.remove('hidden');
+            moonIcon.classList.add('hidden');
+        } else {
+            document.body.classList.remove('dark-theme');
+            sunIcon.classList.add('hidden');
+            moonIcon.classList.remove('hidden');
+        }
+        localStorage.setItem('grecharge_theme', theme);
+    };
+    
+    // Read from localStorage
+    const savedTheme = localStorage.getItem('grecharge_theme') || 'light';
+    applyTheme(savedTheme);
+    
+    themeBtn.addEventListener('click', () => {
+        const isDark = document.body.classList.contains('dark-theme');
+        applyTheme(isDark ? 'light' : 'dark');
+    });
 }
 
 function formatCurrency(val) {
