@@ -294,6 +294,11 @@ async function loadDatabaseData() {
 
         updateDashboardStats();
         renderRecentSalesTable();
+        renderClientsTable();
+        renderSalesTable();
+        renderCreditsTable();
+        renderExpensesTable();
+        renderStockTable();
     } catch (err) {
         console.error('Error fetching database:', err);
         const isAr = document.documentElement.lang === 'ar';
