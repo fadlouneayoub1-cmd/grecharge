@@ -1766,8 +1766,8 @@ function deleteSaleHandler(id) {
     Swal.fire({
         title: isAr ? 'إلغاء هذه البيعة؟' : 'Annuler cette vente ?',
         html: isAr 
-            ? "<div style='text-align: right; direction: rtl;'>سيتم حذف مبلغ البيع والديون المرتبطة به. لن يتم إرجاع المخزون تلقائيًا.</div>"
-            : "Le montant de la vente et les dettes associées seront supprimés. Le stock ne sera pas retourné automatiquement.",
+            ? "<div style='text-align: right; direction: rtl;'>سيتم حذف مبلغ البيع والديون المرتبطة به. وسيتم إرجاع الكمية إلى المخزون تلقائيًا.</div>"
+            : "Le montant de la vente et les dettes associées seront supprimés. La quantité sera automatiquement retournée au stock.",
         icon: 'warning',
         showCancelButton: true,
         confirmButtonColor: '#EF4444',
@@ -1777,12 +1777,48 @@ function deleteSaleHandler(id) {
         customClass: { popup: 'swal2-popup-custom' }
     }).then(async (result) => {
         if (result.isConfirmed) {
-            const { error } = await supabase.from('sales').delete().eq('id', id);
-            if (error) {
-                Swal.fire(isAr ? 'خطأ' : 'Erreur', error.message, 'error');
-            } else {
-                Swal.fire({ icon: 'success', title: isAr ? 'تم إلغاء البيع' : 'Vente annulée', timer: 1200, showConfirmButton: false });
+            Swal.fire({
+                title: isAr ? 'جاري إلغاء البيع...' : 'Annulation de la vente...',
+                didOpen: () => Swal.showLoading(),
+                allowOutsideClick: false
+            });
+
+            try {
+                // Find the sale details
+                let saleItem = state.sales.find(s => s.id === id);
+                if (!saleItem) {
+                    const { data: dbSales, error: fetchErr } = await supabase.from('sales').select('*').eq('id', id);
+                    if (fetchErr) throw fetchErr;
+                    if (dbSales && dbSales.length > 0) {
+                        saleItem = dbSales[0];
+                    }
+                }
+
+                if (saleItem) {
+                    // Locate matching stock item
+                    const stockItem = state.stock.find(s => 
+                        s.operator === saleItem.operator && 
+                        s.product_type === saleItem.product_type && 
+                        s.product_name === saleItem.product_name
+                    );
+
+                    if (stockItem) {
+                        // Return the quantity to stock
+                        const newQty = stockItem.quantity + saleItem.quantity;
+                        const { error: stockErr } = await supabase.from('stock').update({ quantity: newQty }).eq('id', stockItem.id);
+                        if (stockErr) throw stockErr;
+                    }
+                }
+
+                // Delete the sale from Supabase
+                const { error: deleteErr } = await supabase.from('sales').delete().eq('id', id);
+                if (deleteErr) throw deleteErr;
+
+                Swal.fire({ icon: 'success', title: isAr ? 'تم إلغاء البيع وإرجاع المخزون' : 'Vente annulée et stock retourné', timer: 1500, showConfirmButton: false });
                 loadDatabaseData();
+            } catch (err) {
+                console.error(err);
+                Swal.fire(isAr ? 'خطأ' : 'Erreur', err.message, 'error');
             }
         }
     });
